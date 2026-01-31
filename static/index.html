@@ -10,410 +10,409 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <!-- PIN Screen -->
-    <div class="screen active" id="pin-screen">
-        <div class="pin-logo">D<span>.</span>t</div>
-        <div class="pin-subtitle">Enter PIN</div>
-        
-        <div class="pin-display">
-            <div class="pin-dot" id="dot-0"></div>
-            <div class="pin-dot" id="dot-1"></div>
-            <div class="pin-dot" id="dot-2"></div>
-            <div class="pin-dot" id="dot-3"></div>
+    <div class="app-frame">
+        <!-- PIN Screen -->
+        <div class="screen active" id="pin-screen">
+            <div class="pin-logo">D<span>.</span>t</div>
+            <div class="pin-subtitle">Enter PIN</div>
+            
+            <div class="pin-display">
+                <div class="pin-dot" id="dot-0"></div>
+                <div class="pin-dot" id="dot-1"></div>
+                <div class="pin-dot" id="dot-2"></div>
+                <div class="pin-dot" id="dot-3"></div>
+            </div>
+            
+            <div class="pin-pad">
+                <button class="pin-btn" onclick="enterPin('1')">1</button>
+                <button class="pin-btn" onclick="enterPin('2')">2</button>
+                <button class="pin-btn" onclick="enterPin('3')">3</button>
+                <button class="pin-btn" onclick="enterPin('4')">4</button>
+                <button class="pin-btn" onclick="enterPin('5')">5</button>
+                <button class="pin-btn" onclick="enterPin('6')">6</button>
+                <button class="pin-btn" onclick="enterPin('7')">7</button>
+                <button class="pin-btn" onclick="enterPin('8')">8</button>
+                <button class="pin-btn" onclick="enterPin('9')">9</button>
+                <div></div>
+                <button class="pin-btn" onclick="enterPin('0')">0</button>
+                <button class="pin-btn delete" onclick="deletePin()">DEL</button>
+            </div>
+            
+            <div class="pin-error" id="pin-error"></div>
         </div>
         
-        <div class="pin-pad">
-            <button class="pin-btn" onclick="enterPin('1')">1</button>
-            <button class="pin-btn" onclick="enterPin('2')">2</button>
-            <button class="pin-btn" onclick="enterPin('3')">3</button>
-            <button class="pin-btn" onclick="enterPin('4')">4</button>
-            <button class="pin-btn" onclick="enterPin('5')">5</button>
-            <button class="pin-btn" onclick="enterPin('6')">6</button>
-            <button class="pin-btn" onclick="enterPin('7')">7</button>
-            <button class="pin-btn" onclick="enterPin('8')">8</button>
-            <button class="pin-btn" onclick="enterPin('9')">9</button>
-            <div></div>
-            <button class="pin-btn" onclick="enterPin('0')">0</button>
-            <button class="pin-btn delete" onclick="deletePin()">DEL</button>
+        <!-- Home Screen -->
+        <div class="screen" id="home-screen">
+            <div class="home-logo">D<span>.</span>t</div>
+            <div class="home-tagline">Updates on the go</div>
+            
+            <div class="home-buttons">
+                <button class="home-btn primary" onclick="goTo('clients')">Update</button>
+                <button class="home-btn secondary" onclick="goTo('todo')">To Do</button>
+                <button class="home-btn tertiary" onclick="goTo('tracker')">Tracker</button>
+                <button class="home-btn tertiary" onclick="goTo('ask')">Ask Dot</button>
+            </div>
         </div>
         
-        <div class="pin-error" id="pin-error"></div>
-    </div>
-    
-    <!-- Home Screen -->
-    <div class="screen" id="home-screen">
-        <div class="home-logo">D<span>.</span>t</div>
-        <div class="home-tagline">Updates on the go</div>
-        
-        <div class="home-buttons">
-            <button class="home-btn primary" onclick="goTo('clients')">Update</button>
-            <button class="home-btn secondary" onclick="goTo('todo')">To Do</button>
-            <button class="home-btn tertiary" onclick="goTo('tracker')">Tracker</button>
-            <button class="home-btn tertiary" onclick="goTo('ask')">Ask Dot</button>
-        </div>
-    </div>
-    
-    <!-- Client Picker Screen -->
-    <div class="screen" id="clients-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo('home')">←</button>
-            <div class="header-title">Select Client</div>
-        </div>
-        
-        <div class="client-list">
-            <!-- Main Clients -->
-            <div class="client-row" onclick="selectClient('ONE', 'One Marketing')">
-                <div class="client-logo">ONE</div>
-                <div class="client-info">
-                    <div class="client-name">One Marketing</div>
-                    <div class="client-code">ONE</div>
-                </div>
-                <div class="client-arrow">→</div>
+        <!-- Client Picker Screen -->
+        <div class="screen" id="clients-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('home')">←</button>
+                <div class="header-title">Select Client</div>
             </div>
             
-            <div class="client-row" onclick="selectClient('ONB', 'One Business')">
-                <div class="client-logo">ONB</div>
-                <div class="client-info">
-                    <div class="client-name">One Business</div>
-                    <div class="client-code">ONB</div>
+            <div class="client-list">
+                <div class="client-row" onclick="selectClient('ONE', 'One Marketing')">
+                    <div class="client-logo">ONE</div>
+                    <div class="client-info">
+                        <div class="client-name">One Marketing</div>
+                        <div class="client-code">ONE</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('ONS', 'One Simplification')">
-                <div class="client-logo">ONS</div>
-                <div class="client-info">
-                    <div class="client-name">One Simplification</div>
-                    <div class="client-code">ONS</div>
+                
+                <div class="client-row" onclick="selectClient('ONB', 'One Business')">
+                    <div class="client-logo">ONB</div>
+                    <div class="client-info">
+                        <div class="client-name">One Business</div>
+                        <div class="client-code">ONB</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('SKY', 'Sky')">
-                <div class="client-logo">SKY</div>
-                <div class="client-info">
-                    <div class="client-name">Sky</div>
-                    <div class="client-code">SKY</div>
+                
+                <div class="client-row" onclick="selectClient('ONS', 'One Simplification')">
+                    <div class="client-logo">ONS</div>
+                    <div class="client-info">
+                        <div class="client-name">One Simplification</div>
+                        <div class="client-code">ONS</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('TOW', 'Tower')">
-                <div class="client-logo">TOW</div>
-                <div class="client-info">
-                    <div class="client-name">Tower</div>
-                    <div class="client-code">TOW</div>
+                
+                <div class="client-row" onclick="selectClient('SKY', 'Sky')">
+                    <div class="client-logo">SKY</div>
+                    <div class="client-info">
+                        <div class="client-name">Sky</div>
+                        <div class="client-code">SKY</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <!-- Other Clients -->
-            <div class="section-divider">Other</div>
-            
-            <div class="client-row" onclick="selectClient('EON', 'Enable On')">
-                <div class="client-logo">EON</div>
-                <div class="client-info">
-                    <div class="client-name">Enable On</div>
-                    <div class="client-code">EON</div>
+                
+                <div class="client-row" onclick="selectClient('TOW', 'Tower')">
+                    <div class="client-logo">TOW</div>
+                    <div class="client-info">
+                        <div class="client-name">Tower</div>
+                        <div class="client-code">TOW</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('FIS', 'Fisher Funds')">
-                <div class="client-logo">FIS</div>
-                <div class="client-info">
-                    <div class="client-name">Fisher Funds</div>
-                    <div class="client-code">FIS</div>
+                
+                <div class="section-divider">Other</div>
+                
+                <div class="client-row" onclick="selectClient('EON', 'Enable On')">
+                    <div class="client-logo">EON</div>
+                    <div class="client-info">
+                        <div class="client-name">Enable On</div>
+                        <div class="client-code">EON</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('HUN', 'Hunch')">
-                <div class="client-logo">HUN</div>
-                <div class="client-info">
-                    <div class="client-name">Hunch</div>
-                    <div class="client-code">HUN</div>
+                
+                <div class="client-row" onclick="selectClient('FIS', 'Fisher Funds')">
+                    <div class="client-logo">FIS</div>
+                    <div class="client-info">
+                        <div class="client-name">Fisher Funds</div>
+                        <div class="client-code">FIS</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('LAB', 'Labour Party')">
-                <div class="client-logo">LAB</div>
-                <div class="client-info">
-                    <div class="client-name">Labour Party</div>
-                    <div class="client-code">LAB</div>
+                
+                <div class="client-row" onclick="selectClient('HUN', 'Hunch')">
+                    <div class="client-logo">HUN</div>
+                    <div class="client-info">
+                        <div class="client-name">Hunch</div>
+                        <div class="client-code">HUN</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
-            </div>
-            
-            <div class="client-row" onclick="selectClient('WKA', 'Waikato')">
-                <div class="client-logo">WKA</div>
-                <div class="client-info">
-                    <div class="client-name">Waikato</div>
-                    <div class="client-code">WKA</div>
+                
+                <div class="client-row" onclick="selectClient('LAB', 'Labour Party')">
+                    <div class="client-logo">LAB</div>
+                    <div class="client-info">
+                        <div class="client-name">Labour Party</div>
+                        <div class="client-code">LAB</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
+                
+                <div class="client-row" onclick="selectClient('WKA', 'Waikato')">
+                    <div class="client-logo">WKA</div>
+                    <div class="client-info">
+                        <div class="client-name">Waikato</div>
+                        <div class="client-code">WKA</div>
+                    </div>
+                    <div class="client-arrow">→</div>
+                </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Jobs Screen -->
-    <div class="screen" id="jobs-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo('clients')">←</button>
-            <div class="header-title" id="jobs-title">Jobs</div>
         </div>
         
-        <div class="job-list" id="job-list">
-            <!-- Jobs rendered by JS -->
-        </div>
-    </div>
-    
-    <!-- Update Card Screen -->
-    <div class="screen" id="card-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo(previousScreen)">←</button>
-            <div class="header-title">Update Job</div>
+        <!-- Jobs Screen -->
+        <div class="screen" id="jobs-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('clients')">←</button>
+                <div class="header-title" id="jobs-title">Jobs</div>
+            </div>
+            
+            <div class="job-list" id="job-list">
+            </div>
         </div>
         
-        <div class="card">
-            <div class="card-header">
-                <div class="card-number" id="card-number">SKY 018</div>
-                <div class="card-name" id="card-name">Offboarding Journey</div>
-                <div class="card-desc" id="card-desc">Simplify and improve Sky Exit Journey</div>
+        <!-- Update Card Screen -->
+        <div class="screen" id="card-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo(previousScreen)">←</button>
+                <div class="header-title">Update Job</div>
             </div>
             
-            <div class="card-field">
-                <div class="card-label">Update</div>
-                <div class="card-input placeholder" id="update-display" onclick="openModal('update')">Add an update...</div>
-            </div>
-            
-            <div class="card-row">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-number" id="card-number">SKY 018</div>
+                    <div class="card-name" id="card-name">Offboarding Journey</div>
+                    <div class="card-desc" id="card-desc">Simplify and improve Sky Exit Journey</div>
+                </div>
+                
                 <div class="card-field">
-                    <div class="card-label">Update Due</div>
-                    <div class="card-input" id="date-display" onclick="openModal('date')">7 Feb 2026</div>
+                    <div class="card-label">Update</div>
+                    <div class="card-input placeholder" id="update-display" onclick="openModal('update')">Add an update...</div>
                 </div>
+                
+                <div class="card-row">
+                    <div class="card-field">
+                        <div class="card-label">Update Due</div>
+                        <div class="card-input" id="date-display" onclick="openModal('date')">7 Feb 2026</div>
+                    </div>
+                    <div class="card-field">
+                        <div class="card-label">Status</div>
+                        <div class="card-input" id="status-display" onclick="openModal('status')">In Progress</div>
+                    </div>
+                </div>
+                
                 <div class="card-field">
-                    <div class="card-label">Status</div>
-                    <div class="card-input" id="status-display" onclick="openModal('status')">In Progress</div>
+                    <div class="toggle-field">
+                        <span class="toggle-label">With Client</span>
+                        <input type="checkbox" class="toggle" id="with-client-toggle">
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveUpdate()">Save Update</button>
+            </div>
+        </div>
+        
+        <!-- To Do Screen -->
+        <div class="screen" id="todo-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('home')">←</button>
+                <div class="header-title">To Do</div>
+            </div>
+            
+            <div class="todo-section">
+                <div class="todo-title">Today</div>
+                <div class="todo-item" onclick="openTodoJob('SKY 018', 'Offboarding Journey', 'Simplify and improve Sky Exit Journey')">
+                    <div class="todo-job-number">SKY 018</div>
+                    <div class="todo-job-name">Offboarding Journey</div>
+                </div>
+                <div class="todo-item" onclick="openTodoJob('TOW 088', 'Car Insurance Cross-sell', 'Email sequence for existing customers')">
+                    <div class="todo-job-number">TOW 088</div>
+                    <div class="todo-job-name">Car Insurance Cross-sell</div>
                 </div>
             </div>
             
-            <div class="card-field">
-                <div class="toggle-field">
-                    <span class="toggle-label">With Client</span>
-                    <input type="checkbox" class="toggle" id="with-client-toggle">
+            <div class="todo-section">
+                <div class="todo-title">Tomorrow</div>
+                <div class="todo-item" onclick="openTodoJob('ONS 078', 'Simplification Phase 2', 'Internal change management')">
+                    <div class="todo-job-number">ONS 078</div>
+                    <div class="todo-job-name">Simplification Phase 2</div>
                 </div>
             </div>
             
-            <button class="save-btn" onclick="saveUpdate()">Save Update</button>
-        </div>
-    </div>
-    
-    <!-- To Do Screen -->
-    <div class="screen" id="todo-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo('home')">←</button>
-            <div class="header-title">To Do</div>
-        </div>
-        
-        <div class="todo-section">
-            <div class="todo-title">Today</div>
-            <div class="todo-item" onclick="openTodoJob('SKY 018', 'Offboarding Journey', 'Simplify and improve Sky Exit Journey')">
-                <div class="todo-job-number">SKY 018</div>
-                <div class="todo-job-name">Offboarding Journey</div>
-            </div>
-            <div class="todo-item" onclick="openTodoJob('TOW 088', 'Car Insurance Cross-sell', 'Email sequence for existing customers')">
-                <div class="todo-job-number">TOW 088</div>
-                <div class="todo-job-name">Car Insurance Cross-sell</div>
-            </div>
-        </div>
-        
-        <div class="todo-section">
-            <div class="todo-title">Tomorrow</div>
-            <div class="todo-item" onclick="openTodoJob('ONS 078', 'Simplification Phase 2', 'Internal change management')">
-                <div class="todo-job-number">ONS 078</div>
-                <div class="todo-job-name">Simplification Phase 2</div>
-            </div>
-        </div>
-        
-        <div class="todo-section">
-            <div class="todo-title">Meetings</div>
-            <div class="todo-locked">
-                <div class="todo-locked-icon">🔒</div>
-                <div class="todo-locked-text">Coming soon</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tracker Client Picker Screen -->
-    <div class="screen" id="tracker-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo('home')">←</button>
-            <div class="header-title">Tracker</div>
-        </div>
-        
-        <div class="client-list">
-            <div class="client-row" onclick="openTracker('ONE', 'One Marketing')">
-                <div class="client-logo">ONE</div>
-                <div class="client-info">
-                    <div class="client-name">One Marketing</div>
-                    <div class="client-code">ONE</div>
+            <div class="todo-section">
+                <div class="todo-title">Meetings</div>
+                <div class="todo-locked">
+                    <div class="todo-locked-icon">🔒</div>
+                    <div class="todo-locked-text">Coming soon</div>
                 </div>
-                <div class="client-arrow">→</div>
+            </div>
+        </div>
+        
+        <!-- Tracker Client Picker Screen -->
+        <div class="screen" id="tracker-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('home')">←</button>
+                <div class="header-title">Tracker</div>
             </div>
             
-            <div class="client-row" onclick="openTracker('ONB', 'One Business')">
-                <div class="client-logo">ONB</div>
-                <div class="client-info">
-                    <div class="client-name">One Business</div>
-                    <div class="client-code">ONB</div>
+            <div class="client-list">
+                <div class="client-row" onclick="openTracker('ONE', 'One Marketing')">
+                    <div class="client-logo">ONE</div>
+                    <div class="client-info">
+                        <div class="client-name">One Marketing</div>
+                        <div class="client-code">ONE</div>
+                    </div>
+                    <div class="client-arrow">→</div>
                 </div>
-                <div class="client-arrow">→</div>
+                
+                <div class="client-row" onclick="openTracker('ONB', 'One Business')">
+                    <div class="client-logo">ONB</div>
+                    <div class="client-info">
+                        <div class="client-name">One Business</div>
+                        <div class="client-code">ONB</div>
+                    </div>
+                    <div class="client-arrow">→</div>
+                </div>
+                
+                <div class="client-row" onclick="openTracker('ONS', 'One Simplification')">
+                    <div class="client-logo">ONS</div>
+                    <div class="client-info">
+                        <div class="client-name">One Simplification</div>
+                        <div class="client-code">ONS</div>
+                    </div>
+                    <div class="client-arrow">→</div>
+                </div>
+                
+                <div class="client-row" onclick="openTracker('SKY', 'Sky')">
+                    <div class="client-logo">SKY</div>
+                    <div class="client-info">
+                        <div class="client-name">Sky</div>
+                        <div class="client-code">SKY</div>
+                    </div>
+                    <div class="client-arrow">→</div>
+                </div>
+                
+                <div class="client-row" onclick="openTracker('TOW', 'Tower')">
+                    <div class="client-logo">TOW</div>
+                    <div class="client-info">
+                        <div class="client-name">Tower</div>
+                        <div class="client-code">TOW</div>
+                    </div>
+                    <div class="client-arrow">→</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tracker View Screen -->
+        <div class="screen" id="tracker-view-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('tracker')">←</button>
+                <div class="header-title" id="tracker-title">Sky</div>
             </div>
             
-            <div class="client-row" onclick="openTracker('ONS', 'One Simplification')">
-                <div class="client-logo">ONS</div>
-                <div class="client-info">
-                    <div class="client-name">One Simplification</div>
-                    <div class="client-code">ONS</div>
+            <div class="tracker-card">
+                <div class="tracker-period">This Month</div>
+                <div class="tracker-row">
+                    <span class="tracker-label">Budget</span>
+                    <span class="tracker-value">$45,000</span>
                 </div>
-                <div class="client-arrow">→</div>
+                <div class="tracker-row">
+                    <span class="tracker-label">Spent</span>
+                    <span class="tracker-value">$28,450</span>
+                </div>
+                <div class="tracker-row">
+                    <span class="tracker-label">Remaining</span>
+                    <span class="tracker-value remaining">$16,550</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill good" style="width: 63%"></div>
+                </div>
+                <div class="tracker-percent">63% used</div>
             </div>
             
-            <div class="client-row" onclick="openTracker('SKY', 'Sky')">
-                <div class="client-logo">SKY</div>
-                <div class="client-info">
-                    <div class="client-name">Sky</div>
-                    <div class="client-code">SKY</div>
+            <div class="tracker-card">
+                <div class="tracker-period">This Quarter</div>
+                <div class="tracker-row">
+                    <span class="tracker-label">Budget</span>
+                    <span class="tracker-value">$135,000</span>
                 </div>
-                <div class="client-arrow">→</div>
+                <div class="tracker-row">
+                    <span class="tracker-label">Spent</span>
+                    <span class="tracker-value">$98,200</span>
+                </div>
+                <div class="tracker-row">
+                    <span class="tracker-label">Remaining</span>
+                    <span class="tracker-value remaining">$36,800</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 73%"></div>
+                </div>
+                <div class="tracker-percent">73% used</div>
+            </div>
+        </div>
+        
+        <!-- Ask Dot Screen -->
+        <div class="screen" id="ask-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('home')">←</button>
+                <div class="header-title">Ask Dot</div>
             </div>
             
-            <div class="client-row" onclick="openTracker('TOW', 'Tower')">
-                <div class="client-logo">TOW</div>
-                <div class="client-info">
-                    <div class="client-name">Tower</div>
-                    <div class="client-code">TOW</div>
-                </div>
-                <div class="client-arrow">→</div>
+            <div class="ask-messages" id="ask-messages">
+                <div class="message dot">Hey! What can I help you with?</div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Tracker View Screen -->
-    <div class="screen" id="tracker-view-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo('tracker')">←</button>
-            <div class="header-title" id="tracker-title">Sky</div>
-        </div>
-        
-        <div class="tracker-card">
-            <div class="tracker-period">This Month</div>
-            <div class="tracker-row">
-                <span class="tracker-label">Budget</span>
-                <span class="tracker-value">$45,000</span>
-            </div>
-            <div class="tracker-row">
-                <span class="tracker-label">Spent</span>
-                <span class="tracker-value">$28,450</span>
-            </div>
-            <div class="tracker-row">
-                <span class="tracker-label">Remaining</span>
-                <span class="tracker-value remaining">$16,550</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill good" style="width: 63%"></div>
-            </div>
-            <div class="tracker-percent">63% used</div>
-        </div>
-        
-        <div class="tracker-card">
-            <div class="tracker-period">This Quarter</div>
-            <div class="tracker-row">
-                <span class="tracker-label">Budget</span>
-                <span class="tracker-value">$135,000</span>
-            </div>
-            <div class="tracker-row">
-                <span class="tracker-label">Spent</span>
-                <span class="tracker-value">$98,200</span>
-            </div>
-            <div class="tracker-row">
-                <span class="tracker-label">Remaining</span>
-                <span class="tracker-value remaining">$36,800</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: 73%"></div>
-            </div>
-            <div class="tracker-percent">73% used</div>
-        </div>
-    </div>
-    
-    <!-- Ask Dot Screen -->
-    <div class="screen" id="ask-screen">
-        <div class="header">
-            <button class="back-btn" onclick="goTo('home')">←</button>
-            <div class="header-title">Ask Dot</div>
-        </div>
-        
-        <div class="ask-messages" id="ask-messages">
-            <div class="message dot">Hey! What can I help you with?</div>
-        </div>
-        
-        <div class="ask-input-container">
-            <div class="ask-input-row">
-                <input type="text" class="ask-input" id="ask-input" placeholder="Type a message...">
-                <button class="ask-send" onclick="sendMessage()">↑</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modals -->
-    <div class="modal-overlay" id="update-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Update</div>
-                <button class="modal-close" onclick="closeModal('update')">×</button>
-            </div>
-            <textarea class="modal-input" id="update-input" rows="4" placeholder="What's the latest?"></textarea>
-            <button class="modal-save" onclick="saveUpdateText()">Done</button>
-        </div>
-    </div>
-    
-    <div class="modal-overlay" id="date-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Update Due</div>
-                <button class="modal-close" onclick="closeModal('date')">×</button>
-            </div>
-            <input type="date" class="modal-input" id="date-input">
-            <button class="modal-save" onclick="saveDate()">Done</button>
-        </div>
-    </div>
-    
-    <div class="modal-overlay" id="status-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Status</div>
-                <button class="modal-close" onclick="closeModal('status')">×</button>
-            </div>
-            <div class="status-options">
-                <div class="status-option selected" onclick="selectStatus('In Progress', this)">
-                    In Progress<span class="check">✓</span>
-                </div>
-                <div class="status-option" onclick="selectStatus('On Hold', this)">
-                    On Hold<span class="check">✓</span>
-                </div>
-                <div class="status-option" onclick="selectStatus('Completed', this)">
-                    Completed<span class="check">✓</span>
+            
+            <div class="ask-input-container">
+                <div class="ask-input-row">
+                    <input type="text" class="ask-input" id="ask-input" placeholder="Type a message...">
+                    <button class="ask-send" onclick="sendMessage()">↑</button>
                 </div>
             </div>
         </div>
+        
+        <!-- Modals -->
+        <div class="modal-overlay" id="update-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">Update</div>
+                    <button class="modal-close" onclick="closeModal('update')">×</button>
+                </div>
+                <textarea class="modal-input" id="update-input" rows="4" placeholder="What's the latest?"></textarea>
+                <button class="modal-save" onclick="saveUpdateText()">Done</button>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="date-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">Update Due</div>
+                    <button class="modal-close" onclick="closeModal('date')">×</button>
+                </div>
+                <input type="date" class="modal-input" id="date-input">
+                <button class="modal-save" onclick="saveDate()">Done</button>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="status-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">Status</div>
+                    <button class="modal-close" onclick="closeModal('status')">×</button>
+                </div>
+                <div class="status-options">
+                    <div class="status-option selected" onclick="selectStatus('In Progress', this)">
+                        In Progress<span class="check">✓</span>
+                    </div>
+                    <div class="status-option" onclick="selectStatus('On Hold', this)">
+                        On Hold<span class="check">✓</span>
+                    </div>
+                    <div class="status-option" onclick="selectStatus('Completed', this)">
+                        Completed<span class="check">✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Toast -->
+        <div class="toast" id="toast">Updated ✓</div>
     </div>
-    
-    <!-- Toast -->
-    <div class="toast" id="toast">Updated ✓</div>
-    
+
     <script src="/static/app.js"></script>
 </body>
 </html>
