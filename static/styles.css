@@ -101,6 +101,12 @@ body {
     padding: 40px 20px;
 }
 
+.pin-robot {
+    width: 80px;
+    height: auto;
+    margin-bottom: 16px;
+}
+
 .pin-logo {
     font-family: var(--font-display);
     font-size: 64px;
@@ -199,6 +205,16 @@ body {
     height: 20px;
 }
 
+.pin-ai2-logo {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 24px;
+    width: auto;
+    opacity: 0.6;
+}
+
 /* ===== HOME SCREEN ===== */
 #home-screen.active {
     background: var(--grey-100);
@@ -232,7 +248,7 @@ body {
     color: var(--grey-400);
     font-size: 13px;
     font-weight: 500;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
@@ -246,15 +262,18 @@ body {
 }
 
 .home-btn {
-    padding: 24px;
+    display: flex;
+    align-items: center;
+    padding: 20px 18px;
     border-radius: var(--radius-md);
     border: none;
     font-family: var(--font-body);
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: all 0.15s var(--ease-out);
-    text-align: center;
     box-shadow: var(--shadow-sm);
     background: var(--white);
     color: var(--grey-800);
@@ -265,6 +284,41 @@ body {
     transform: scale(0.98);
     background: var(--red);
     color: var(--white);
+}
+
+.home-btn:active .btn-icon,
+.home-btn:active .btn-chevron {
+    stroke: var(--white);
+}
+
+.btn-icon {
+    width: 22px;
+    height: 22px;
+    stroke: var(--red);
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+.home-btn span {
+    flex: 1;
+    text-align: left;
+}
+
+.btn-chevron {
+    width: 18px;
+    height: 18px;
+    stroke: var(--grey-300);
+    flex-shrink: 0;
+}
+
+.home-ai2-logo {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 24px;
+    width: auto;
+    opacity: 0.6;
 }
 
 /* ===== HEADERS & NAVIGATION ===== */
@@ -367,6 +421,25 @@ body {
 
 .client-row:active .client-arrow {
     transform: translateX(4px);
+}
+
+.client-row.other-row {
+    background: var(--grey-50);
+    border: 1.5px dashed var(--grey-200);
+    box-shadow: none;
+}
+
+.client-row.other-row .client-info {
+    text-align: center;
+}
+
+.client-row.other-row .client-name {
+    color: var(--grey-600);
+}
+
+.client-row.other-row:active {
+    background: var(--red);
+    border-color: var(--red);
 }
 
 .section-divider {

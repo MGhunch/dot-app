@@ -14,7 +14,7 @@
     <div class="app-frame">
         <!-- PIN Screen -->
         <div class="screen active" id="pin-screen">
-            <div class="pin-logo">D<span>.</span>t</div>
+            <img src="/static/images/Robot.png" alt="Dot" class="pin-robot">
             <div class="pin-subtitle">Enter PIN</div>
             
             <div class="pin-display">
@@ -40,19 +40,58 @@
             </div>
             
             <div class="pin-error" id="pin-error"></div>
+            <img src="/static/images/ai2-logo.png" alt="AI2" class="pin-ai2-logo">
         </div>
         
         <!-- Home Screen -->
         <div class="screen" id="home-screen">
             <img src="/static/images/Dotandhello.png" alt="Hello" class="home-hello-img">
-            <div class="home-tagline">Updates on the go</div>
+            <div class="home-tagline">Just ask Dot</div>
             
             <div class="home-buttons">
-                <button class="home-btn primary" onclick="goTo('clients')">Update</button>
-                <button class="home-btn secondary" onclick="goTo('todo')">To Do</button>
-                <button class="home-btn tertiary" onclick="goTo('tracker')">Tracker</button>
-                <button class="home-btn tertiary" onclick="goTo('ask')">Ask Dot</button>
+                <button class="home-btn" onclick="goTo('clients')">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    <span>Update</span>
+                    <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <button class="home-btn" onclick="goTo('todo')">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    <span>To Do</span>
+                    <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <button class="home-btn" onclick="goTo('tracker')">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    <span>Tracker</span>
+                    <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <button class="home-btn" onclick="goTo('ask')">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Ask Dot</span>
+                    <svg class="btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
             </div>
+            
+            <img src="/static/images/ai2-logo.png" alt="AI2" class="home-ai2-logo">
         </div>
         
         <!-- Client Picker Screen -->
@@ -108,8 +147,23 @@
                     <div class="client-arrow">→</div>
                 </div>
                 
-                <div class="section-divider">Other</div>
-                
+                <div class="client-row other-row" onclick="goTo('other-clients')">
+                    <div class="client-info">
+                        <div class="client-name">Other</div>
+                    </div>
+                    <div class="client-arrow">→</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Other Clients Screen -->
+        <div class="screen" id="other-clients-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goTo('clients')">←</button>
+                <div class="header-title">Other Clients</div>
+            </div>
+            
+            <div class="client-list">
                 <div class="client-row" onclick="selectClient('EON', 'Enable On')">
                     <div class="client-logo"><img src="/static/images/logos/Unknown.png" alt="EON"></div>
                     <div class="client-info">
