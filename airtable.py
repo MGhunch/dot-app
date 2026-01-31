@@ -119,6 +119,7 @@ def transform_project(record):
         
         # Content
         'description': fields.get('Description', ''),
+        'theStory': fields.get('The Story', ''),
         'update': latest_update,
         'updateHistory': update_history,
         'projectOwner': fields.get('Project Owner', ''),
