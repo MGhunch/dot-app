@@ -151,32 +151,7 @@ function renderJobs(jobs) {
         return;
     }
     
-    container.innerHTML = jobs.map(job => {
-        // Escape values for HTML attributes
-        const number = escapeHtml(job.jobNumber || '');
-        const name = escapeHtml(job.jobName || '');
-        const desc = escapeHtml(job.description || '');
-        const status = job.status || 'In Progress';
-        const withClient = job.withClient || false;
-        const update = escapeHtml(job.update || '');
-        const updateDue = job.updateDue || '';
-        
-        return `
-        <div class="job-item" onclick="openJob('${number}', this)" 
-             data-name="${name}" 
-             data-desc="${desc}" 
-             data-status="${status}" 
-             data-with-client="${withClient}"
-             data-update="${update}"
-             data-update-due="${updateDue}">
-            <div class="job-item-header">
-                <div class="job-item-number">${number}</div>
-                <div class="job-item-status ${withClient ? 'with-client' : ''}">${withClient ? 'With client' : status}</div>
-            </div>
-            <div class="job-item-name">${name}</div>
-            <div class="job-item-desc">${desc || 'No description'}</div>
-        </div>
-    `}).join('');
+    container.innerHTML = jobs.map(job => renderJobCard(job)).join('');
 }
 
 function escapeHtml(text) {
@@ -187,6 +162,158 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+// ==================== 
+// Job Card Rendering (shared)
+// ==================== 
+
+function resolveJobNumber(jobNum) {
+    // Find full job object from allJobs cache
+    const num = typeof jobNum === 'string' ? jobNum : jobNum.jobNumber;
+    return allJobs.find(j => j.jobNumber === num) || { jobNumber: num };
+}
+
+function renderJobCard(job, source = 'jobs') {
+    // Renders a compact job card - clickable to SUMMARY
+    const number = escapeHtml(job.jobNumber || '');
+    const name = escapeHtml(job.jobName || '');
+    const desc = escapeHtml(job.description || '');
+    const status = job.status || 'In Progress';
+    const withClient = job.withClient || false;
+    const update = escapeHtml(job.update || '');
+    const updateDue = job.updateDue || '';
+    const theStory = escapeHtml(job.theStory || '');
+    const liveDate = escapeHtml(job.liveDate || '');
+    const projectOwner = escapeHtml(job.projectOwner || '');
+    
+    return `
+        <div class="job-item" onclick="openSummary('${number}', this, '${source}')" 
+             data-name="${name}" 
+             data-desc="${desc}" 
+             data-status="${status}" 
+             data-with-client="${withClient}"
+             data-update="${update}"
+             data-update-due="${updateDue}"
+             data-the-story="${theStory}"
+             data-live-date="${liveDate}"
+             data-project-owner="${projectOwner}">
+            <div class="job-item-header">
+                <div class="job-item-number">${number}</div>
+                <div class="job-item-status ${withClient ? 'with-client' : ''}">${withClient ? 'With client' : status}</div>
+            </div>
+            <div class="job-item-name">${name}</div>
+            <div class="job-item-desc">${desc || 'No description'}</div>
+        </div>
+    `;
+}
+
+function openJobFrom(number, element, source) {
+    previousScreen = source;
+    openJob(number, element);
+}
+
+// ==================== 
+// Summary Card (read-only detail view)
+// ==================== 
+
+let currentSummaryJob = null;
+let summaryPreviousScreen = 'jobs';
+
+function openSummary(number, element, source) {
+    summaryPreviousScreen = source;
+    
+    // Get data from element attributes
+    const name = element?.dataset?.name || '';
+    const desc = element?.dataset?.desc || '';
+    const status = element?.dataset?.status || 'In Progress';
+    const withClient = element?.dataset?.withClient === 'true';
+    const update = element?.dataset?.update || '';
+    const updateDue = element?.dataset?.updateDue || '';
+    const theStory = element?.dataset?.theStory || '';
+    const liveDate = element?.dataset?.liveDate || '';
+    const projectOwner = element?.dataset?.projectOwner || '';
+    
+    currentSummaryJob = {
+        jobNumber: number,
+        jobName: name,
+        description: desc,
+        status: status,
+        withClient: withClient,
+        update: update,
+        updateDue: updateDue,
+        theStory: theStory,
+        liveDate: liveDate,
+        projectOwner: projectOwner
+    };
+    
+    // Populate summary screen
+    document.getElementById('summary-name').textContent = name;
+    document.getElementById('summary-number').textContent = number;
+    document.getElementById('summary-desc').textContent = desc || 'No description';
+    document.getElementById('summary-owner').textContent = projectOwner || 'Unassigned';
+    document.getElementById('summary-story').textContent = theStory || 'Still working on it';
+    document.getElementById('summary-update').textContent = update || 'No updates yet';
+    
+    // Format dates
+    if (updateDue) {
+        const date = new Date(updateDue);
+        document.getElementById('summary-due').textContent = date.toLocaleDateString('en-GB', { 
+            day: 'numeric', month: 'short', year: 'numeric' 
+        });
+    } else {
+        document.getElementById('summary-due').textContent = 'Not set';
+    }
+    
+    document.getElementById('summary-live').textContent = liveDate || 'TBC';
+    
+    goTo('summary');
+}
+
+function openUpdateFromSummary() {
+    // Transfer data to update card
+    if (!currentSummaryJob) return;
+    
+    previousScreen = 'summary';
+    
+    const job = currentSummaryJob;
+    currentJob = { ...job };
+    
+    document.getElementById('card-number').textContent = job.jobNumber;
+    document.getElementById('card-name').textContent = job.jobName;
+    document.getElementById('card-desc').textContent = job.description || 'No description';
+    document.getElementById('status-display').textContent = job.status;
+    document.getElementById('with-client-toggle').checked = job.withClient;
+    
+    // Set update display
+    const updateDisplay = document.getElementById('update-display');
+    if (job.update) {
+        updateDisplay.textContent = job.update;
+        updateDisplay.classList.remove('placeholder');
+    } else {
+        updateDisplay.textContent = 'Add an update...';
+        updateDisplay.classList.add('placeholder');
+    }
+    document.getElementById('update-input').value = '';
+    
+    // Set date display
+    const dateDisplay = document.getElementById('date-display');
+    if (job.updateDue) {
+        const date = new Date(job.updateDue);
+        dateDisplay.textContent = date.toLocaleDateString('en-GB', { 
+            day: 'numeric', month: 'short', year: 'numeric' 
+        });
+        document.getElementById('date-input').value = job.updateDue;
+    } else {
+        dateDisplay.textContent = 'Set date...';
+        document.getElementById('date-input').value = '';
+    }
+    
+    goTo('card');
+}
+
+function goBackFromSummary() {
+    goTo(summaryPreviousScreen);
 }
 
 // ==================== 
@@ -244,7 +371,6 @@ function openJob(number, element) {
         document.getElementById('date-input').value = '';
     }
     
-    previousScreen = 'jobs';
     goTo('card');
 }
 
@@ -415,7 +541,7 @@ async function loadAndRenderTodo() {
     // Today section
     html += '<div class="todo-title">Today</div>';
     if (data.today && data.today.length > 0) {
-        html += data.today.map(job => renderTodoItem(job)).join('');
+        html += data.today.map(job => renderJobCard(job, 'todo')).join('');
     } else {
         html += '<div class="todo-empty">Nothing due today</div>';
     }
@@ -423,7 +549,7 @@ async function loadAndRenderTodo() {
     // Tomorrow section
     html += '<div class="todo-title" style="margin-top: 24px;">Tomorrow</div>';
     if (data.tomorrow && data.tomorrow.length > 0) {
-        html += data.tomorrow.map(job => renderTodoItem(job)).join('');
+        html += data.tomorrow.map(job => renderJobCard(job, 'todo')).join('');
     } else {
         html += '<div class="todo-empty">Nothing due tomorrow</div>';
     }
@@ -514,14 +640,13 @@ async function sendMessage() {
         // Render response
         container.innerHTML += `<div class="message dot">${escapeHtml(dotMessage)}</div>`;
         
-        // If jobs were returned, show them
+        // If jobs were returned, show them as full cards
         if (result.jobs && Array.isArray(result.jobs) && result.jobs.length > 0) {
             const jobsHtml = result.jobs.map(jobNum => {
-                // Jobs might be just job numbers (strings) or full objects
-                const num = typeof jobNum === 'string' ? jobNum : jobNum.jobNumber;
-                return `<div class="job-chip">${escapeHtml(num)}</div>`;
+                const job = resolveJobNumber(jobNum);
+                return renderJobCard(job, 'ask');
             }).join('');
-            container.innerHTML += `<div class="message-jobs">${jobsHtml}</div>`;
+            container.innerHTML += `<div class="chat-jobs">${jobsHtml}</div>`;
         }
         
         container.scrollTop = container.scrollHeight;

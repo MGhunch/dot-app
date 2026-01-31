@@ -527,6 +527,86 @@ body {
     line-height: 1.4;
 }
 
+/* ===== SUMMARY CARD ===== */
+.summary-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--grey-200);
+    margin-bottom: 16px;
+}
+
+.summary-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--grey-800);
+    flex: 1;
+    padding-right: 12px;
+}
+
+.summary-number {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--red);
+    white-space: nowrap;
+}
+
+.summary-section {
+    margin-bottom: 16px;
+}
+
+.summary-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--grey-400);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.summary-text {
+    font-size: 15px;
+    color: var(--grey-800);
+    line-height: 1.5;
+}
+
+.summary-row {
+    display: flex;
+    gap: 24px;
+}
+
+.summary-row .summary-section {
+    flex: 1;
+}
+
+.edit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--grey-100);
+    color: var(--grey-700);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.15s var(--ease-out);
+}
+
+.edit-btn:active {
+    background: var(--red);
+    color: var(--white);
+}
+
 /* ===== UPDATE CARD ===== */
 .card {
     background: var(--white);
@@ -1018,6 +1098,14 @@ body {
     padding: 6px 12px;
     border-radius: var(--radius-full);
     border: 1px solid var(--grey-200);
+}
+
+.chat-jobs {
+    margin-bottom: 12px;
+}
+
+.chat-jobs .job-item {
+    margin-bottom: 8px;
 }
 
 /* Position absolute to stay inside app-frame */

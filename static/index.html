@@ -241,6 +241,54 @@
             </div>
         </div>
         
+        <!-- Summary Screen (read-only detail view) -->
+        <div class="screen" id="summary-screen">
+            <div class="header">
+                <button class="back-btn" onclick="goBackFromSummary()">←</button>
+                <div class="header-title">Job Summary</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="summary-name" id="summary-name">Offboarding Journey</div>
+                    <div class="summary-number" id="summary-number">SKY 018</div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-label">The job</div>
+                    <div class="summary-text" id="summary-desc">Simplify and improve Sky Exit Journey</div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-label">Owner</div>
+                    <div class="summary-text" id="summary-owner">Michael</div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-label">The story</div>
+                    <div class="summary-text" id="summary-story">Still working on it</div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-label">Update</div>
+                    <div class="summary-text" id="summary-update">No updates yet</div>
+                </div>
+                
+                <div class="summary-row">
+                    <div class="summary-section">
+                        <div class="summary-label">Update due</div>
+                        <div class="summary-text" id="summary-due">7 Feb 2026</div>
+                    </div>
+                    <div class="summary-section">
+                        <div class="summary-label">Live</div>
+                        <div class="summary-text" id="summary-live">March</div>
+                    </div>
+                </div>
+                
+                <button class="edit-btn" onclick="openUpdateFromSummary()">Edit Job</button>
+            </div>
+        </div>
+        
         <!-- Update Card Screen -->
         <div class="screen" id="card-screen">
             <div class="header">
