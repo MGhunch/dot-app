@@ -48,11 +48,17 @@
                 <button class="pin-btn" onclick="enterPin('9')">9</button>
                 <div></div>
                 <button class="pin-btn" onclick="enterPin('0')">0</button>
-                <button class="pin-btn delete" onclick="deletePin()">DEL</button>
+                <button class="pin-btn delete" onclick="deletePin()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                        <line x1="18" y1="9" x2="12" y2="15"></line>
+                        <line x1="12" y1="9" x2="18" y2="15"></line>
+                    </svg>
+                </button>
             </div>
             
             <div class="pin-error" id="pin-error"></div>
-            <img src="/static/images/ai2-logo.png" alt="AI2" class="pin-ai2-logo">
+            <img src="/static/images/ai2-logo-transparent.png" alt="AI2" class="pin-ai2-logo">
         </div>
         
         <!-- Home Screen -->
@@ -102,14 +108,14 @@
                 </button>
             </div>
             
-            <img src="/static/images/ai2-logo.png" alt="AI2" class="home-ai2-logo">
+            <img src="/static/images/ai2-logo-transparent.png" alt="AI2" class="home-ai2-logo">
         </div>
         
         <!-- Client Picker Screen -->
         <div class="screen" id="clients-screen">
             <div class="header">
                 <button class="back-btn" onclick="goTo('home')">←</button>
-                <div class="header-title">Select Client</div>
+                <div class="header-title">Select client</div>
             </div>
             
             <div class="client-list">
@@ -165,7 +171,7 @@
                     <div class="client-arrow">→</div>
                 </div>
             </div>
-            <img src="/static/images/ai2-logo.png" alt="AI2" class="screen-ai2-logo">
+            <img src="/static/images/ai2-logo-transparent.png" alt="AI2" class="screen-ai2-logo">
         </div>
         
         <!-- Other Clients Screen -->
@@ -221,7 +227,7 @@
                     <div class="client-arrow">→</div>
                 </div>
             </div>
-            <img src="/static/images/ai2-logo.png" alt="AI2" class="screen-ai2-logo">
+            <img src="/static/images/ai2-logo-transparent.png" alt="AI2" class="screen-ai2-logo">
         </div>
         
         <!-- Jobs Screen -->
@@ -349,7 +355,7 @@
                     <div class="client-arrow">→</div>
                 </div>
             </div>
-            <img src="/static/images/ai2-logo.png" alt="AI2" class="screen-ai2-logo">
+            <img src="/static/images/ai2-logo-transparent.png" alt="AI2" class="screen-ai2-logo">
         </div>
         
         <!-- Tracker View Screen -->

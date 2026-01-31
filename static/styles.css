@@ -102,7 +102,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 40px 20px 80px 20px;
 }
 
 .pin-robot {
@@ -211,12 +211,12 @@ body {
 
 .pin-ai2-logo {
     position: absolute;
-    bottom: 40px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    height: 24px;
+    height: 20px;
     width: auto;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 /* ===== HOME SCREEN ===== */
@@ -230,9 +230,9 @@ body {
 }
 
 .home-hello-img {
-    width: 200px;
+    width: 160px;
     height: auto;
-    margin-bottom: 8px;
+    margin-bottom: 24px;
 }
 
 .home-logo {
@@ -317,17 +317,17 @@ body {
 
 .home-ai2-logo {
     position: absolute;
-    bottom: 40px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    height: 24px;
+    height: 20px;
     width: auto;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 .screen-ai2-logo {
     position: absolute;
-    bottom: 24px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     height: 20px;
@@ -439,7 +439,6 @@ body {
 
 .client-row.other-row {
     background: var(--grey-50);
-    border: 1.5px dashed var(--grey-200);
     box-shadow: none;
 }
 
@@ -453,7 +452,6 @@ body {
 
 .client-row.other-row:active {
     background: var(--red);
-    border-color: var(--red);
 }
 
 .section-divider {
@@ -912,7 +910,7 @@ body {
 }
 
 .tracker-value.remaining {
-    color: var(--green);
+    color: var(--grey-600);
 }
 
 .tracker-value.over {
@@ -958,7 +956,7 @@ body {
     padding-top: 12px;
     border-top: 1px dashed var(--grey-200);
     font-size: 13px;
-    color: var(--green);
+    color: var(--grey-600);
     font-weight: 500;
 }
 

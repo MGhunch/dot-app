@@ -712,26 +712,6 @@ function renderTrackerContent(clientCode) {
     
     content.innerHTML = `
         <div class="tracker-card">
-            <div class="tracker-period">${currentMonth}</div>
-            <div class="tracker-row">
-                <span class="tracker-label">Budget</span>
-                <span class="tracker-value">${formatCurrency(monthBudget)}</span>
-            </div>
-            <div class="tracker-row">
-                <span class="tracker-label">Spent</span>
-                <span class="tracker-value">${formatCurrency(monthSpent)}</span>
-            </div>
-            <div class="tracker-row">
-                <span class="tracker-label">${monthOver ? 'Over' : 'Remaining'}</span>
-                <span class="tracker-value ${monthOver ? 'over' : 'remaining'}">${monthOver ? '-' : ''}${formatCurrency(Math.abs(monthRemaining))}</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill ${monthOver ? 'over' : ''}" style="width: ${monthProgress}%"></div>
-            </div>
-            <div class="tracker-percent">${Math.round(monthProgress)}% used</div>
-        </div>
-        
-        <div class="tracker-card">
             <div class="tracker-period">${currentQuarter} (${quarterMonths[0].slice(0,3)} – ${quarterMonths[2].slice(0,3)})</div>
             <div class="tracker-row">
                 <span class="tracker-label">Budget</span>
@@ -750,6 +730,26 @@ function renderTrackerContent(clientCode) {
             </div>
             <div class="tracker-percent">${Math.round(quarterProgress)}% used</div>
             ${rolloverHtml}
+        </div>
+        
+        <div class="tracker-card">
+            <div class="tracker-period">${currentMonth}</div>
+            <div class="tracker-row">
+                <span class="tracker-label">Budget</span>
+                <span class="tracker-value">${formatCurrency(monthBudget)}</span>
+            </div>
+            <div class="tracker-row">
+                <span class="tracker-label">Spent</span>
+                <span class="tracker-value">${formatCurrency(monthSpent)}</span>
+            </div>
+            <div class="tracker-row">
+                <span class="tracker-label">${monthOver ? 'Over' : 'Remaining'}</span>
+                <span class="tracker-value ${monthOver ? 'over' : 'remaining'}">${monthOver ? '-' : ''}${formatCurrency(Math.abs(monthRemaining))}</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill ${monthOver ? 'over' : ''}" style="width: ${monthProgress}%"></div>
+            </div>
+            <div class="tracker-percent">${Math.round(monthProgress)}% used</div>
         </div>
     `;
 }
