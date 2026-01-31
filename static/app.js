@@ -1,4 +1,5 @@
 // Dot App - UI Logic
+// Wired to real APIs
 
 // ==================== 
 // State
@@ -7,46 +8,14 @@
 let currentPin = '';
 let selectedClient = null;
 let previousScreen = 'home';
+let currentUser = null;
+let allJobs = [];  // Cache of all jobs for Ask Dot context
+let conversationHistory = [];  // Chat history for context
 
 const VALID_PINS = {
-    '9871': 'Michael',
-    '9262': 'Emma',
-    '1919': 'Team'
-};
-
-// Mock job data (will be replaced with API calls)
-const JOBS = {
-    'SKY': [
-        { number: 'SKY 018', name: 'Offboarding Journey', desc: 'Simplify and improve Sky Exit Journey', status: 'In Progress', withClient: true },
-        { number: 'SKY 042', name: 'Paint the Waterfall', desc: 'Brand campaign creative', status: 'In Progress', withClient: false },
-        { number: 'SKY 045', name: 'Broadband Promo', desc: 'Q1 promotional campaign', status: 'On Hold', withClient: false }
-    ],
-    'TOW': [
-        { number: 'TOW 088', name: 'Car Insurance Cross-sell', desc: 'Email sequence for existing customers', status: 'In Progress', withClient: false },
-        { number: 'TOW 091', name: 'Policy Refresh', desc: 'Update policy documents for 2026', status: 'In Progress', withClient: false }
-    ],
-    'ONB': [
-        { number: 'ONB 012', name: 'Business Portal Refresh', desc: 'Update B2B customer portal', status: 'In Progress', withClient: false }
-    ],
-    'ONE': [
-        { number: 'ONE 023', name: 'Network Upgrade Comms', desc: 'Customer communications for network changes', status: 'In Progress', withClient: false }
-    ],
-    'ONS': [
-        { number: 'ONS 078', name: 'Simplification Phase 2', desc: 'Internal change management', status: 'In Progress', withClient: true }
-    ],
-    'EON': [
-        { number: 'EON 003', name: 'Fibre Launch Campaign', desc: 'Regional rollout communications', status: 'In Progress', withClient: false }
-    ],
-    'FIS': [
-        { number: 'FIS 025', name: 'Fund Report Design', desc: 'Quarterly report templates', status: 'In Progress', withClient: false }
-    ],
-    'LAB': [
-        { number: 'LAB 055', name: 'Election 26', desc: 'Election campaign materials', status: 'In Progress', withClient: false }
-    ],
-    'WKA': [],
-    'HUN': [
-        { number: 'HUN 001', name: 'Dot Platform', desc: 'Internal admin automation', status: 'In Progress', withClient: false }
-    ]
+    '9871': { name: 'Michael', fullName: 'Michael Goldthorpe' },
+    '9262': { name: 'Emma', fullName: 'Emma Moore' },
+    '1919': { name: 'Team', fullName: 'Hunch Team' }
 };
 
 // ==================== 
@@ -77,8 +46,24 @@ function updatePinDisplay() {
     }
 }
 
-function validatePin() {
+async function validatePin() {
     if (VALID_PINS[currentPin]) {
+        currentUser = VALID_PINS[currentPin];
+        
+        // Call backend to set session
+        try {
+            await fetch('/auth/pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin: currentPin })
+            });
+        } catch (e) {
+            console.log('Session set failed (non-blocking):', e);
+        }
+        
+        // Load jobs in background
+        loadAllJobs();
+        
         goTo('home');
     } else {
         document.getElementById('pin-error').textContent = 'Invalid PIN';
@@ -99,61 +84,196 @@ function goTo(screen) {
 }
 
 // ==================== 
+// Data Loading
+// ==================== 
+
+async function loadAllJobs() {
+    try {
+        const response = await fetch('/api/jobs/all');
+        if (response.ok) {
+            allJobs = await response.json();
+            console.log(`[App] Loaded ${allJobs.length} jobs`);
+        }
+    } catch (e) {
+        console.error('[App] Failed to load jobs:', e);
+        allJobs = [];
+    }
+}
+
+async function loadJobsForClient(clientCode) {
+    try {
+        const response = await fetch(`/api/jobs?client=${clientCode}`);
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (e) {
+        console.error(`[App] Failed to load jobs for ${clientCode}:`, e);
+    }
+    return [];
+}
+
+async function loadTodoJobs() {
+    try {
+        const response = await fetch('/api/todo');
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (e) {
+        console.error('[App] Failed to load todo jobs:', e);
+    }
+    return { today: [], tomorrow: [] };
+}
+
+// ==================== 
 // Client Selection
 // ==================== 
 
-function selectClient(code, name) {
+async function selectClient(code, name) {
     selectedClient = { code, name };
     document.getElementById('jobs-title').textContent = name + ' Jobs';
-    renderJobs(code);
+    
+    // Show loading state
+    const container = document.getElementById('job-list');
+    container.innerHTML = '<div class="todo-empty">Loading...</div>';
+    
     goTo('jobs');
+    
+    // Fetch and render jobs
+    const jobs = await loadJobsForClient(code);
+    renderJobs(jobs);
 }
 
-function renderJobs(clientCode) {
-    const jobs = JOBS[clientCode] || [];
+function renderJobs(jobs) {
     const container = document.getElementById('job-list');
     
-    if (jobs.length === 0) {
+    if (!jobs || jobs.length === 0) {
         container.innerHTML = '<div class="todo-empty">No active jobs</div>';
         return;
     }
     
-    container.innerHTML = jobs.map(job => `
-        <div class="job-item" onclick="openJob('${job.number}', '${job.name}', '${job.desc}', '${job.status}', ${job.withClient})">
+    container.innerHTML = jobs.map(job => {
+        // Escape values for HTML attributes
+        const number = escapeHtml(job.jobNumber || '');
+        const name = escapeHtml(job.jobName || '');
+        const desc = escapeHtml(job.description || '');
+        const status = job.status || 'In Progress';
+        const withClient = job.withClient || false;
+        const update = escapeHtml(job.update || '');
+        const updateDue = job.updateDue || '';
+        
+        return `
+        <div class="job-item" onclick="openJob('${number}', this)" 
+             data-name="${name}" 
+             data-desc="${desc}" 
+             data-status="${status}" 
+             data-with-client="${withClient}"
+             data-update="${update}"
+             data-update-due="${updateDue}">
             <div class="job-item-header">
-                <div class="job-item-number">${job.number}</div>
-                <div class="job-item-status ${job.withClient ? 'with-client' : ''}">${job.withClient ? 'With client' : job.status}</div>
+                <div class="job-item-number">${number}</div>
+                <div class="job-item-status ${withClient ? 'with-client' : ''}">${withClient ? 'With client' : status}</div>
             </div>
-            <div class="job-item-name">${job.name}</div>
-            <div class="job-item-desc">${job.desc}</div>
+            <div class="job-item-name">${name}</div>
+            <div class="job-item-desc">${desc || 'No description'}</div>
         </div>
-    `).join('');
+    `}).join('');
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // ==================== 
 // Job Card
 // ==================== 
 
-function openJob(number, name, desc, status, withClient) {
+let currentJob = null;  // Track current job being edited
+
+function openJob(number, element) {
+    // Get data from element attributes
+    const name = element?.dataset?.name || '';
+    const desc = element?.dataset?.desc || '';
+    const status = element?.dataset?.status || 'In Progress';
+    const withClient = element?.dataset?.withClient === 'true';
+    const update = element?.dataset?.update || '';
+    const updateDue = element?.dataset?.updateDue || '';
+    
+    currentJob = {
+        jobNumber: number,
+        jobName: name,
+        description: desc,
+        status: status,
+        withClient: withClient,
+        update: update,
+        updateDue: updateDue
+    };
+    
     document.getElementById('card-number').textContent = number;
     document.getElementById('card-name').textContent = name;
-    document.getElementById('card-desc').textContent = desc;
+    document.getElementById('card-desc').textContent = desc || 'No description';
     document.getElementById('status-display').textContent = status;
     document.getElementById('with-client-toggle').checked = withClient;
-    document.getElementById('update-display').textContent = 'Add an update...';
-    document.getElementById('update-display').classList.add('placeholder');
+    
+    // Set update display
+    const updateDisplay = document.getElementById('update-display');
+    if (update) {
+        updateDisplay.textContent = update;
+        updateDisplay.classList.remove('placeholder');
+    } else {
+        updateDisplay.textContent = 'Add an update...';
+        updateDisplay.classList.add('placeholder');
+    }
     document.getElementById('update-input').value = '';
+    
+    // Set date display
+    const dateDisplay = document.getElementById('date-display');
+    if (updateDue) {
+        const date = new Date(updateDue);
+        dateDisplay.textContent = date.toLocaleDateString('en-GB', { 
+            day: 'numeric', month: 'short', year: 'numeric' 
+        });
+        document.getElementById('date-input').value = updateDue;
+    } else {
+        dateDisplay.textContent = 'Set date...';
+        document.getElementById('date-input').value = '';
+    }
+    
     previousScreen = 'jobs';
     goTo('card');
 }
 
-function openTodoJob(number, name, desc) {
+function openTodoJob(number, name, desc, updateDue) {
+    currentJob = {
+        jobNumber: number,
+        jobName: name,
+        description: desc,
+        updateDue: updateDue
+    };
+    
     document.getElementById('card-number').textContent = number;
     document.getElementById('card-name').textContent = name;
-    document.getElementById('card-desc').textContent = desc;
+    document.getElementById('card-desc').textContent = desc || 'No description';
     document.getElementById('update-display').textContent = 'Add an update...';
     document.getElementById('update-display').classList.add('placeholder');
     document.getElementById('update-input').value = '';
+    
+    // Set date
+    const dateDisplay = document.getElementById('date-display');
+    if (updateDue) {
+        const date = new Date(updateDue);
+        dateDisplay.textContent = date.toLocaleDateString('en-GB', { 
+            day: 'numeric', month: 'short', year: 'numeric' 
+        });
+    } else {
+        dateDisplay.textContent = 'Set date...';
+    }
+    
     previousScreen = 'todo';
     goTo('card');
 }
@@ -199,44 +319,225 @@ function selectStatus(status, element) {
     setTimeout(() => closeModal('status'), 150);
 }
 
-function saveUpdate() {
+// ==================== 
+// Save Update (Real API)
+// ==================== 
+
+async function saveUpdate() {
+    if (!currentJob) {
+        showToast('No job selected', 'error');
+        return;
+    }
+    
+    const jobNumber = currentJob.jobNumber;
+    const message = document.getElementById('update-input').value.trim();
+    const status = document.getElementById('status-display').textContent;
+    const withClient = document.getElementById('with-client-toggle').checked;
+    const updateDue = document.getElementById('date-input').value;
+    
+    // Validation: if posting an update, must set next update due date
+    if (message && !updateDue) {
+        showToast("When's the update due?", 'error');
+        openModal('date');
+        return;
+    }
+    
+    // Build payload
+    const payload = {
+        status: status,
+        withClient: withClient
+    };
+    
+    if (updateDue) {
+        payload.updateDue = updateDue;
+    }
+    
+    if (message) {
+        payload.message = message;
+    }
+    
+    // Show saving state
+    showToast('Saving...', 'info');
+    
+    try {
+        const response = await fetch(`/api/job/${encodeURIComponent(jobNumber)}/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Update failed');
+        }
+        
+        showToast('Updated!', 'success');
+        
+        // Refresh jobs cache
+        loadAllJobs();
+        
+        // Go back after short delay
+        setTimeout(() => {
+            goTo(previousScreen);
+        }, 1000);
+        
+    } catch (e) {
+        console.error('[App] Update failed:', e);
+        showToast("That didn't work", 'error');
+    }
+}
+
+function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-        goTo(previousScreen);
-    }, 1500);
+    toast.textContent = message;
+    toast.className = 'toast show ' + type;
+    
+    if (type !== 'info') {
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }
+}
+
+// ==================== 
+// To Do
+// ==================== 
+
+async function loadAndRenderTodo() {
+    const container = document.getElementById('todo-list');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="todo-empty">Loading...</div>';
+    
+    const data = await loadTodoJobs();
+    
+    let html = '';
+    
+    // Today section
+    html += '<div class="todo-section-title">Today</div>';
+    if (data.today && data.today.length > 0) {
+        html += data.today.map(job => renderTodoItem(job)).join('');
+    } else {
+        html += '<div class="todo-empty">Nothing due today</div>';
+    }
+    
+    // Tomorrow section
+    html += '<div class="todo-section-title" style="margin-top: 24px;">Tomorrow</div>';
+    if (data.tomorrow && data.tomorrow.length > 0) {
+        html += data.tomorrow.map(job => renderTodoItem(job)).join('');
+    } else {
+        html += '<div class="todo-empty">Nothing due tomorrow</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+function renderTodoItem(job) {
+    const number = escapeHtml(job.jobNumber || '');
+    const name = escapeHtml(job.jobName || '');
+    const desc = escapeHtml(job.description || '');
+    const updateDue = job.updateDue || '';
+    
+    return `
+        <div class="todo-item" onclick="openTodoJob('${number}', '${name.replace(/'/g, "\\'")}', '${desc.replace(/'/g, "\\'")}', '${updateDue}')">
+            <div class="todo-item-number">${number}</div>
+            <div class="todo-item-name">${name}</div>
+        </div>
+    `;
 }
 
 // ==================== 
 // Tracker
 // ==================== 
 
-function openTracker(code, name) {
+async function openTracker(code, name) {
     document.getElementById('tracker-title').textContent = name;
+    
+    // For now, show placeholder - tracker view needs more work
     goTo('tracker-view');
+    
+    // TODO: Load and render tracker data
+    // const data = await fetch(`/api/tracker?client=${code}`).then(r => r.json());
 }
 
 // ==================== 
-// Ask Dot
+// Ask Dot (Real API)
 // ==================== 
 
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById('ask-input');
     const message = input.value.trim();
     if (!message) return;
     
     const container = document.getElementById('ask-messages');
-    container.innerHTML += `<div class="message user">${message}</div>`;
+    
+    // Add user message
+    container.innerHTML += `<div class="message user">${escapeHtml(message)}</div>`;
     input.value = '';
-    
-    // TODO: Replace with actual API call to Brain /hub endpoint
-    setTimeout(() => {
-        container.innerHTML += `<div class="message dot">I'd tell you, but this is just a prototype. The real Dot lives in the Hub!</div>`;
-        container.scrollTop = container.scrollHeight;
-    }, 800);
-    
     container.scrollTop = container.scrollHeight;
+    
+    // Add thinking indicator
+    container.innerHTML += `<div class="message dot thinking" id="thinking-msg">Thinking...</div>`;
+    container.scrollTop = container.scrollHeight;
+    
+    // Add to history before sending
+    conversationHistory.push({ role: 'user', content: message });
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                history: conversationHistory.slice(0, -1)  // Send history without current message
+            })
+        });
+        
+        // Remove thinking indicator
+        document.getElementById('thinking-msg')?.remove();
+        
+        if (!response.ok) {
+            throw new Error('Chat failed');
+        }
+        
+        const data = await response.json();
+        const result = data.response || {};
+        const dotMessage = result.message || "I'm not sure how to help with that.";
+        
+        // Add assistant response to history
+        conversationHistory.push({ role: 'assistant', content: dotMessage });
+        
+        // Keep history manageable
+        if (conversationHistory.length > 20) {
+            conversationHistory = conversationHistory.slice(-20);
+        }
+        
+        // Render response
+        container.innerHTML += `<div class="message dot">${escapeHtml(dotMessage)}</div>`;
+        
+        // If jobs were returned, show them
+        if (result.jobs && Array.isArray(result.jobs) && result.jobs.length > 0) {
+            const jobsHtml = result.jobs.map(jobNum => {
+                // Jobs might be just job numbers (strings) or full objects
+                const num = typeof jobNum === 'string' ? jobNum : jobNum.jobNumber;
+                return `<div class="job-chip">${escapeHtml(num)}</div>`;
+            }).join('');
+            container.innerHTML += `<div class="message-jobs">${jobsHtml}</div>`;
+        }
+        
+        container.scrollTop = container.scrollHeight;
+        
+    } catch (e) {
+        console.error('[App] Chat error:', e);
+        
+        // Remove thinking indicator
+        document.getElementById('thinking-msg')?.remove();
+        
+        // Remove failed message from history
+        conversationHistory.pop();
+        
+        container.innerHTML += `<div class="message dot">Sorry, I got tangled up. Try again?</div>`;
+        container.scrollTop = container.scrollHeight;
+    }
 }
 
 // ==================== 
@@ -259,3 +560,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==================== 
+// Navigation helpers (for HTML onclick)
+// ==================== 
+
+function goToTodo() {
+    loadAndRenderTodo();
+    goTo('todo');
+}
