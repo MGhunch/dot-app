@@ -65,6 +65,9 @@ body {
     background: var(--grey-100);
     overflow: hidden;
     box-shadow: var(--shadow-lg);
+    /* Safe area for notched phones */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* On actual phones, fill the screen and remove shadow */
