@@ -581,27 +581,17 @@ let trackerData = [];     // Spend records for current client
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
                 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const QUARTERS = {
-    'Q1': ['January', 'February', 'March'],
-    'Q2': ['April', 'May', 'June'],
-    'Q3': ['July', 'August', 'September'],
-    'Q4': ['October', 'November', 'December']
-};
-
 function getCurrentMonth() {
     return MONTHS[new Date().getMonth()];
 }
 
-function getCurrentQuarter() {
+function getCalendarQuarterMonths() {
+    // Returns the months for the current calendar quarter
     const month = new Date().getMonth();
-    if (month < 3) return 'Q1';
-    if (month < 6) return 'Q2';
-    if (month < 9) return 'Q3';
-    return 'Q4';
-}
-
-function getQuarterMonths(quarter) {
-    return QUARTERS[quarter] || QUARTERS['Q1'];
+    if (month < 3) return ['January', 'February', 'March'];
+    if (month < 6) return ['April', 'May', 'June'];
+    if (month < 9) return ['July', 'August', 'September'];
+    return ['October', 'November', 'December'];
 }
 
 async function loadTrackerClients() {
@@ -646,8 +636,9 @@ function getMonthSpend(month) {
         .reduce((sum, d) => sum + (d.spend || 0), 0);
 }
 
-function getQuarterSpend(quarter) {
-    const months = getQuarterMonths(quarter);
+function getQuarterSpend() {
+    // Sum spend for current calendar quarter months
+    const months = getCalendarQuarterMonths();
     return trackerData
         .filter(d => months.includes(d.month))
         .reduce((sum, d) => sum + (d.spend || 0), 0);
@@ -691,8 +682,14 @@ function renderTrackerContent(clientCode) {
     }
     
     const currentMonth = getCurrentMonth();
-    const currentQuarter = client.currentQuarter || getCurrentQuarter();
-    const quarterMonths = getQuarterMonths(currentQuarter);
+    const quarterMonths = getCalendarQuarterMonths();  // Calendar quarter months for spend
+    
+    // Client's quarter label (e.g., ONE's Q4 = Jan-Mar)
+    const currentQuarter = client.currentQuarter || 'Q1';
+    
+    // Previous quarter for rollover label
+    const prevQuarterNum = parseInt(currentQuarter.replace('Q', '')) - 1;
+    const prevQuarter = prevQuarterNum < 1 ? 'Q4' : 'Q' + prevQuarterNum;
     
     // Calculate month totals
     const monthBudget = client.committed;
@@ -701,12 +698,17 @@ function renderTrackerContent(clientCode) {
     const monthProgress = monthBudget > 0 ? Math.min((monthSpent / monthBudget) * 100, 100) : 0;
     const monthOver = monthSpent > monthBudget;
     
-    // Calculate quarter totals
+    // Calculate quarter totals (using calendar quarter months)
     const quarterBudget = client.committed * 3;
-    const quarterSpent = getQuarterSpend(currentQuarter);
+    const quarterSpent = getQuarterSpend();
     const quarterRemaining = quarterBudget - quarterSpent;
     const quarterProgress = quarterBudget > 0 ? Math.min((quarterSpent / quarterBudget) * 100, 100) : 0;
     const quarterOver = quarterSpent > quarterBudget;
+    
+    // Rollover display
+    const rolloverHtml = client.rollover > 0 
+        ? `<div class="tracker-rollover">+${prevQuarter} Rollover – ${formatCurrency(client.rollover)}</div>`
+        : '';
     
     content.innerHTML = `
         <div class="tracker-card">
@@ -730,7 +732,7 @@ function renderTrackerContent(clientCode) {
         </div>
         
         <div class="tracker-card">
-            <div class="tracker-period">${currentQuarter} (${quarterMonths[0].slice(0,3)} - ${quarterMonths[2].slice(0,3)})</div>
+            <div class="tracker-period">${currentQuarter} (${quarterMonths[0].slice(0,3)} – ${quarterMonths[2].slice(0,3)})</div>
             <div class="tracker-row">
                 <span class="tracker-label">Budget</span>
                 <span class="tracker-value">${formatCurrency(quarterBudget)}</span>
@@ -747,16 +749,7 @@ function renderTrackerContent(clientCode) {
                 <div class="progress-fill ${quarterOver ? 'over' : ''}" style="width: ${quarterProgress}%"></div>
             </div>
             <div class="tracker-percent">${Math.round(quarterProgress)}% used</div>
+            ${rolloverHtml}
         </div>
-        
-        ${client.rollover > 0 ? `
-        <div class="tracker-card rollover">
-            <div class="tracker-period">Rollover Credit</div>
-            <div class="tracker-row">
-                <span class="tracker-label">From last quarter</span>
-                <span class="tracker-value remaining">+${formatCurrency(client.rollover)}</span>
-            </div>
-        </div>
-        ` : ''}
     `;
 }

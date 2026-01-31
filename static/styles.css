@@ -953,9 +953,13 @@ body {
     margin-top: 8px;
 }
 
-.tracker-card.rollover {
-    background: var(--grey-100);
-    border: 1px dashed var(--grey-300);
+.tracker-rollover {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--grey-200);
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 500;
 }
 
 /* ===== ASK DOT SCREEN ===== */
