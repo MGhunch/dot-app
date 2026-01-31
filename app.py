@@ -17,10 +17,6 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-me')
 def index():
     return send_from_directory('static', 'index.html')
 
-@app.route('/static/<path:path>')
-def serve_static(path):
-    return send_from_directory('static', path)
-
 # ==================== 
 # Auth Routes
 # ==================== 
