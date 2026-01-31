@@ -413,7 +413,7 @@ async function loadAndRenderTodo() {
     let html = '';
     
     // Today section
-    html += '<div class="todo-section-title">Today</div>';
+    html += '<div class="todo-title">Today</div>';
     if (data.today && data.today.length > 0) {
         html += data.today.map(job => renderTodoItem(job)).join('');
     } else {
@@ -421,7 +421,7 @@ async function loadAndRenderTodo() {
     }
     
     // Tomorrow section
-    html += '<div class="todo-section-title" style="margin-top: 24px;">Tomorrow</div>';
+    html += '<div class="todo-title" style="margin-top: 24px;">Tomorrow</div>';
     if (data.tomorrow && data.tomorrow.length > 0) {
         html += data.tomorrow.map(job => renderTodoItem(job)).join('');
     } else {
@@ -568,4 +568,195 @@ document.addEventListener('DOMContentLoaded', () => {
 function goToTodo() {
     loadAndRenderTodo();
     goTo('todo');
+}
+
+// ==================== 
+// Tracker
+// ==================== 
+
+let trackerClients = {};  // Client budget info keyed by code
+let trackerData = [];     // Spend records for current client
+
+// Current month and quarter helpers
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
+                'July', 'August', 'September', 'October', 'November', 'December'];
+
+const QUARTERS = {
+    'Q1': ['January', 'February', 'March'],
+    'Q2': ['April', 'May', 'June'],
+    'Q3': ['July', 'August', 'September'],
+    'Q4': ['October', 'November', 'December']
+};
+
+function getCurrentMonth() {
+    return MONTHS[new Date().getMonth()];
+}
+
+function getCurrentQuarter() {
+    const month = new Date().getMonth();
+    if (month < 3) return 'Q1';
+    if (month < 6) return 'Q2';
+    if (month < 9) return 'Q3';
+    return 'Q4';
+}
+
+function getQuarterMonths(quarter) {
+    return QUARTERS[quarter] || QUARTERS['Q1'];
+}
+
+async function loadTrackerClients() {
+    try {
+        const response = await fetch('/api/tracker/clients');
+        if (response.ok) {
+            const data = await response.json();
+            trackerClients = {};
+            data.forEach(c => {
+                trackerClients[c.code] = {
+                    name: c.name,
+                    committed: c.committed,
+                    rollover: c.rollover || 0,
+                    currentQuarter: c.currentQuarter || getCurrentQuarter()
+                };
+            });
+            return true;
+        }
+    } catch (e) {
+        console.error('[App] Failed to load tracker clients:', e);
+    }
+    return false;
+}
+
+async function loadTrackerData(clientCode) {
+    try {
+        const response = await fetch(`/api/tracker?client=${clientCode}`);
+        if (response.ok) {
+            trackerData = await response.json();
+            return true;
+        }
+    } catch (e) {
+        console.error(`[App] Failed to load tracker data for ${clientCode}:`, e);
+    }
+    trackerData = [];
+    return false;
+}
+
+function getMonthSpend(month) {
+    return trackerData
+        .filter(d => d.month === month)
+        .reduce((sum, d) => sum + (d.spend || 0), 0);
+}
+
+function getQuarterSpend(quarter) {
+    const months = getQuarterMonths(quarter);
+    return trackerData
+        .filter(d => months.includes(d.month))
+        .reduce((sum, d) => sum + (d.spend || 0), 0);
+}
+
+function formatCurrency(amount) {
+    if (Math.abs(amount) >= 1000) {
+        return '$' + (amount / 1000).toFixed(amount % 1000 === 0 ? 0 : 1) + 'K';
+    }
+    return '$' + Math.abs(amount).toLocaleString();
+}
+
+async function openTracker(code, name) {
+    document.getElementById('tracker-title').textContent = name;
+    
+    // Show loading state
+    const content = document.getElementById('tracker-content');
+    content.innerHTML = '<div class="todo-empty">Loading...</div>';
+    
+    goTo('tracker-view');
+    
+    // Load client info if not already loaded
+    if (!trackerClients[code]) {
+        await loadTrackerClients();
+    }
+    
+    // Load spend data for this client
+    await loadTrackerData(code);
+    
+    // Render the tracker cards
+    renderTrackerContent(code);
+}
+
+function renderTrackerContent(clientCode) {
+    const content = document.getElementById('tracker-content');
+    const client = trackerClients[clientCode];
+    
+    if (!client) {
+        content.innerHTML = '<div class="todo-empty">No budget data available</div>';
+        return;
+    }
+    
+    const currentMonth = getCurrentMonth();
+    const currentQuarter = client.currentQuarter || getCurrentQuarter();
+    const quarterMonths = getQuarterMonths(currentQuarter);
+    
+    // Calculate month totals
+    const monthBudget = client.committed;
+    const monthSpent = getMonthSpend(currentMonth);
+    const monthRemaining = monthBudget - monthSpent;
+    const monthProgress = monthBudget > 0 ? Math.min((monthSpent / monthBudget) * 100, 100) : 0;
+    const monthOver = monthSpent > monthBudget;
+    
+    // Calculate quarter totals
+    const quarterBudget = client.committed * 3;
+    const quarterSpent = getQuarterSpend(currentQuarter);
+    const quarterRemaining = quarterBudget - quarterSpent;
+    const quarterProgress = quarterBudget > 0 ? Math.min((quarterSpent / quarterBudget) * 100, 100) : 0;
+    const quarterOver = quarterSpent > quarterBudget;
+    
+    content.innerHTML = `
+        <div class="tracker-card">
+            <div class="tracker-period">${currentMonth}</div>
+            <div class="tracker-row">
+                <span class="tracker-label">Budget</span>
+                <span class="tracker-value">${formatCurrency(monthBudget)}</span>
+            </div>
+            <div class="tracker-row">
+                <span class="tracker-label">Spent</span>
+                <span class="tracker-value">${formatCurrency(monthSpent)}</span>
+            </div>
+            <div class="tracker-row">
+                <span class="tracker-label">${monthOver ? 'Over' : 'Remaining'}</span>
+                <span class="tracker-value ${monthOver ? 'over' : 'remaining'}">${monthOver ? '-' : ''}${formatCurrency(Math.abs(monthRemaining))}</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill ${monthOver ? 'over' : ''}" style="width: ${monthProgress}%"></div>
+            </div>
+            <div class="tracker-percent">${Math.round(monthProgress)}% used</div>
+        </div>
+        
+        <div class="tracker-card">
+            <div class="tracker-period">${currentQuarter} (${quarterMonths[0].slice(0,3)} - ${quarterMonths[2].slice(0,3)})</div>
+            <div class="tracker-row">
+                <span class="tracker-label">Budget</span>
+                <span class="tracker-value">${formatCurrency(quarterBudget)}</span>
+            </div>
+            <div class="tracker-row">
+                <span class="tracker-label">Spent</span>
+                <span class="tracker-value">${formatCurrency(quarterSpent)}</span>
+            </div>
+            <div class="tracker-row">
+                <span class="tracker-label">${quarterOver ? 'Over' : 'Remaining'}</span>
+                <span class="tracker-value ${quarterOver ? 'over' : 'remaining'}">${quarterOver ? '-' : ''}${formatCurrency(Math.abs(quarterRemaining))}</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill ${quarterOver ? 'over' : ''}" style="width: ${quarterProgress}%"></div>
+            </div>
+            <div class="tracker-percent">${Math.round(quarterProgress)}% used</div>
+        </div>
+        
+        ${client.rollover > 0 ? `
+        <div class="tracker-card rollover">
+            <div class="tracker-period">Rollover Credit</div>
+            <div class="tracker-row">
+                <span class="tracker-label">From last quarter</span>
+                <span class="tracker-value remaining">+${formatCurrency(client.rollover)}</span>
+            </div>
+        </div>
+        ` : ''}
+    `;
 }

@@ -70,7 +70,7 @@
                         <polyline points="9 18 15 12 9 6"/>
                     </svg>
                 </button>
-                <button class="home-btn" onclick="goTo('todo')">
+                <button class="home-btn" onclick="goToTodo()">
                     <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 11l3 3L22 4"/>
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
@@ -283,28 +283,12 @@
                 <div class="header-title">To Do</div>
             </div>
             
-            <div class="todo-section">
-                <div class="todo-title">Today</div>
-                <div class="todo-item" onclick="openTodoJob('SKY 018', 'Offboarding Journey', 'Simplify and improve Sky Exit Journey')">
-                    <div class="todo-job-number">SKY 018</div>
-                    <div class="todo-job-name">Offboarding Journey</div>
-                </div>
-                <div class="todo-item" onclick="openTodoJob('TOW 088', 'Car Insurance Cross-sell', 'Email sequence for existing customers')">
-                    <div class="todo-job-number">TOW 088</div>
-                    <div class="todo-job-name">Car Insurance Cross-sell</div>
-                </div>
+            <div class="todo-list" id="todo-list">
+                <!-- Dynamically populated -->
             </div>
             
             <div class="todo-section">
-                <div class="todo-title">Tomorrow</div>
-                <div class="todo-item" onclick="openTodoJob('ONS 078', 'Simplification Phase 2', 'Internal change management')">
-                    <div class="todo-job-number">ONS 078</div>
-                    <div class="todo-job-name">Simplification Phase 2</div>
-                </div>
-            </div>
-            
-            <div class="todo-section">
-                <div class="todo-title">Meetings</div>
+                <div class="todo-title" style="margin-top: 24px;">Meetings</div>
                 <div class="todo-locked">
                     <div class="todo-locked-icon">🔒</div>
                     <div class="todo-locked-text">Coming soon</div>
@@ -375,44 +359,8 @@
                 <div class="header-title" id="tracker-title">Sky</div>
             </div>
             
-            <div class="tracker-card">
-                <div class="tracker-period">This Month</div>
-                <div class="tracker-row">
-                    <span class="tracker-label">Budget</span>
-                    <span class="tracker-value">$45,000</span>
-                </div>
-                <div class="tracker-row">
-                    <span class="tracker-label">Spent</span>
-                    <span class="tracker-value">$28,450</span>
-                </div>
-                <div class="tracker-row">
-                    <span class="tracker-label">Remaining</span>
-                    <span class="tracker-value remaining">$16,550</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 63%"></div>
-                </div>
-                <div class="tracker-percent">63% used</div>
-            </div>
-            
-            <div class="tracker-card">
-                <div class="tracker-period">This Quarter</div>
-                <div class="tracker-row">
-                    <span class="tracker-label">Budget</span>
-                    <span class="tracker-value">$135,000</span>
-                </div>
-                <div class="tracker-row">
-                    <span class="tracker-label">Spent</span>
-                    <span class="tracker-value">$98,200</span>
-                </div>
-                <div class="tracker-row">
-                    <span class="tracker-label">Remaining</span>
-                    <span class="tracker-value remaining">$36,800</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 73%"></div>
-                </div>
-                <div class="tracker-percent">73% used</div>
+            <div id="tracker-content">
+                <!-- Dynamically populated -->
             </div>
         </div>
         

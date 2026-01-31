@@ -16,6 +16,7 @@
     --grey-50: #fafafa;
     --white: #ffffff;
     --green: #22a822;
+    --orange: #f97316;
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
@@ -914,6 +915,10 @@ body {
     color: var(--green);
 }
 
+.tracker-value.over {
+    color: var(--red);
+}
+
 .tracker-value.remaining.negative {
     color: var(--red);
 }
@@ -933,6 +938,10 @@ body {
     transition: width 0.3s var(--ease-out);
 }
 
+.progress-fill.over {
+    background: var(--orange);
+}
+
 .progress-fill.good {
     background: var(--green);
 }
@@ -942,6 +951,11 @@ body {
     font-size: 12px;
     color: var(--grey-400);
     margin-top: 8px;
+}
+
+.tracker-card.rollover {
+    background: var(--grey-100);
+    border: 1px dashed var(--grey-300);
 }
 
 /* ===== ASK DOT SCREEN ===== */
@@ -979,6 +993,29 @@ body {
     color: var(--grey-800);
     border-bottom-left-radius: 4px;
     box-shadow: var(--shadow-sm);
+}
+
+.message.dot.thinking {
+    color: var(--grey-400);
+    font-style: italic;
+}
+
+.message-jobs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-left: 8px;
+}
+
+.job-chip {
+    background: var(--grey-100);
+    color: var(--grey-700);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--grey-200);
 }
 
 /* Position absolute to stay inside app-frame */
