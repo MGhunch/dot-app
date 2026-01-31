@@ -324,6 +324,16 @@ body {
     opacity: 0.6;
 }
 
+.screen-ai2-logo {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 20px;
+    width: auto;
+    opacity: 0.5;
+}
+
 /* ===== HEADERS & NAVIGATION ===== */
 .header {
     display: flex;
