@@ -65,7 +65,7 @@ body {
 }
 
 /* ===== PIN SCREEN ===== */
-#pin-screen {
+#pin-screen.active {
     background: linear-gradient(135deg, var(--black) 0%, var(--grey-900) 100%);
     display: flex;
     flex-direction: column;
@@ -168,7 +168,7 @@ body {
 }
 
 /* ===== HOME SCREEN ===== */
-#home-screen {
+#home-screen.active {
     background: var(--grey-100);
     display: flex;
     flex-direction: column;
@@ -813,14 +813,10 @@ body {
 }
 
 /* ===== ASK DOT SCREEN ===== */
-#ask-screen {
+#ask-screen.active {
     display: flex;
     flex-direction: column;
     padding-bottom: 80px;
-}
-
-#ask-screen.active {
-    display: flex;
 }
 
 .ask-messages {
