@@ -776,8 +776,19 @@ function formatCurrency(amount) {
     return '$' + Math.abs(amount).toLocaleString();
 }
 
+// Tracker state
+let currentTrackerClient = null;
+let currentMonthIndex = 0;  // 0, 1, 2 within quarter
+
 async function openTracker(code, name) {
     document.getElementById('tracker-title').textContent = name;
+    currentTrackerClient = code;
+    
+    // Reset to current month within quarter
+    const quarterMonths = getCalendarQuarterMonths();
+    const currentMonth = getCurrentMonth();
+    currentMonthIndex = quarterMonths.indexOf(currentMonth);
+    if (currentMonthIndex === -1) currentMonthIndex = 0;
     
     // Show loading state
     const content = document.getElementById('tracker-content');
@@ -795,6 +806,9 @@ async function openTracker(code, name) {
     
     // Render the tracker cards
     renderTrackerContent(code);
+    
+    // Setup swipe after render
+    setupMonthSwipe();
 }
 
 function renderTrackerContent(clientCode) {
@@ -806,8 +820,7 @@ function renderTrackerContent(clientCode) {
         return;
     }
     
-    const currentMonth = getCurrentMonth();
-    const quarterMonths = getCalendarQuarterMonths();  // Calendar quarter months for spend
+    const quarterMonths = getCalendarQuarterMonths();
     
     // Client's quarter label (e.g., ONE's Q4 = Jan-Mar)
     const currentQuarter = client.currentQuarter || 'Q1';
@@ -816,14 +829,7 @@ function renderTrackerContent(clientCode) {
     const prevQuarterNum = parseInt(currentQuarter.replace('Q', '')) - 1;
     const prevQuarter = prevQuarterNum < 1 ? 'Q4' : 'Q' + prevQuarterNum;
     
-    // Calculate month totals
-    const monthBudget = client.committed;
-    const monthSpent = getMonthSpend(currentMonth);
-    const monthRemaining = monthBudget - monthSpent;
-    const monthProgress = monthBudget > 0 ? Math.min((monthSpent / monthBudget) * 100, 100) : 0;
-    const monthOver = monthSpent > monthBudget;
-    
-    // Calculate quarter totals (using calendar quarter months)
+    // Calculate quarter totals
     const quarterBudget = client.committed * 3;
     const quarterSpent = getQuarterSpend();
     const quarterRemaining = quarterBudget - quarterSpent;
@@ -834,6 +840,11 @@ function renderTrackerContent(clientCode) {
     const rolloverHtml = client.rollover > 0 
         ? `<div class="tracker-rollover">+${prevQuarter} Rollover – ${formatCurrency(client.rollover)}</div>`
         : '';
+    
+    // Dot indicators
+    const dots = quarterMonths.map((_, i) => 
+        `<div class="month-dot ${i === currentMonthIndex ? 'active' : ''}" onclick="goToMonth(${i})"></div>`
+    ).join('');
     
     content.innerHTML = `
         <div class="tracker-card">
@@ -857,11 +868,27 @@ function renderTrackerContent(clientCode) {
             ${rolloverHtml}
         </div>
         
-        <div class="tracker-card">
-            <div class="tracker-period">${currentMonth}</div>
+        <div class="month-card-container" id="month-card-container">
+            <div class="month-card-inner" id="month-card-inner">
+                ${renderMonthCard(quarterMonths[currentMonthIndex], client.committed)}
+            </div>
+            <div class="month-dots">${dots}</div>
+        </div>
+    `;
+}
+
+function renderMonthCard(month, committed) {
+    const monthSpent = getMonthSpend(month);
+    const monthRemaining = committed - monthSpent;
+    const monthProgress = committed > 0 ? Math.min((monthSpent / committed) * 100, 100) : 0;
+    const monthOver = monthSpent > committed;
+    
+    return `
+        <div class="tracker-card month-card">
+            <div class="tracker-period">${month}</div>
             <div class="tracker-row">
                 <span class="tracker-label">Budget</span>
-                <span class="tracker-value">${formatCurrency(monthBudget)}</span>
+                <span class="tracker-value">${formatCurrency(committed)}</span>
             </div>
             <div class="tracker-row">
                 <span class="tracker-label">Spent</span>
@@ -877,4 +904,80 @@ function renderTrackerContent(clientCode) {
             <div class="tracker-percent">${Math.round(monthProgress)}% used</div>
         </div>
     `;
+}
+
+function goToMonth(index) {
+    const quarterMonths = getCalendarQuarterMonths();
+    if (index < 0 || index >= quarterMonths.length) return;
+    
+    const direction = index > currentMonthIndex ? 'left' : 'right';
+    currentMonthIndex = index;
+    
+    updateMonthCard(direction);
+}
+
+function updateMonthCard(direction) {
+    const client = trackerClients[currentTrackerClient];
+    if (!client) return;
+    
+    const quarterMonths = getCalendarQuarterMonths();
+    const inner = document.getElementById('month-card-inner');
+    
+    // Add exit animation class
+    inner.classList.add(`slide-out-${direction}`);
+    
+    setTimeout(() => {
+        // Update content
+        inner.innerHTML = renderMonthCard(quarterMonths[currentMonthIndex], client.committed);
+        
+        // Update dots
+        document.querySelectorAll('.month-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentMonthIndex);
+        });
+        
+        // Setup entry animation
+        inner.classList.remove(`slide-out-${direction}`);
+        inner.classList.add(`slide-in-${direction}`);
+        
+        setTimeout(() => {
+            inner.classList.remove(`slide-in-${direction}`);
+        }, 200);
+    }, 150);
+}
+
+// Swipe handling
+let touchStartX = 0;
+let touchEndX = 0;
+
+function setupMonthSwipe() {
+    const container = document.getElementById('month-card-container');
+    if (!container) return;
+    
+    container.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    container.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+}
+
+function handleSwipe() {
+    const diff = touchStartX - touchEndX;
+    const threshold = 50;
+    
+    if (Math.abs(diff) < threshold) return;
+    
+    const quarterMonths = getCalendarQuarterMonths();
+    
+    if (diff > 0 && currentMonthIndex < quarterMonths.length - 1) {
+        // Swipe left → next month
+        currentMonthIndex++;
+        updateMonthCard('left');
+    } else if (diff < 0 && currentMonthIndex > 0) {
+        // Swipe right → prev month
+        currentMonthIndex--;
+        updateMonthCard('right');
+    }
 }

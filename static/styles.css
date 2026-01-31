@@ -1032,6 +1032,85 @@ body {
     font-weight: 500;
 }
 
+/* Month card swipe */
+.month-card-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.month-card-inner {
+    transition: transform 0.2s var(--ease-out), opacity 0.15s ease;
+}
+
+.month-card-inner.slide-out-left {
+    transform: translateX(-20px);
+    opacity: 0;
+}
+
+.month-card-inner.slide-out-right {
+    transform: translateX(20px);
+    opacity: 0;
+}
+
+.month-card-inner.slide-in-left {
+    animation: slideInLeft 0.2s var(--ease-out);
+}
+
+.month-card-inner.slide-in-right {
+    animation: slideInRight 0.2s var(--ease-out);
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.month-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.month-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--grey-200);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.month-dot.active {
+    background: var(--red);
+    transform: scale(1.2);
+}
+
+.month-dot:hover {
+    background: var(--grey-400);
+}
+
+.month-dot.active:hover {
+    background: var(--red);
+}
+
 /* ===== ASK DOT SCREEN ===== */
 #ask-screen.active {
     display: flex;
