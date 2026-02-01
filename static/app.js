@@ -540,21 +540,69 @@ async function loadAndRenderTodo() {
     
     // Today section
     html += '<div class="todo-title">Today</div>';
-    if (data.today && data.today.length > 0) {
-        html += data.today.map(job => renderJobCard(job, 'todo')).join('');
+    const todayMeetings = data.today?.meetings || [];
+    const todayJobs = data.today?.jobs || [];
+    
+    if (todayMeetings.length > 0 || todayJobs.length > 0) {
+        html += todayMeetings.map(m => renderMeetingCard(m)).join('');
+        html += todayJobs.map(job => renderJobCard(job, 'todo')).join('');
     } else {
-        html += '<div class="todo-empty">Nothing due today</div>';
+        html += '<div class="todo-empty">Nothing on today</div>';
     }
     
     // Tomorrow section
     html += '<div class="todo-title" style="margin-top: 24px;">Tomorrow</div>';
-    if (data.tomorrow && data.tomorrow.length > 0) {
-        html += data.tomorrow.map(job => renderJobCard(job, 'todo')).join('');
+    const tomorrowMeetings = data.tomorrow?.meetings || [];
+    const tomorrowJobs = data.tomorrow?.jobs || [];
+    
+    if (tomorrowMeetings.length > 0 || tomorrowJobs.length > 0) {
+        html += tomorrowMeetings.map(m => renderMeetingCard(m)).join('');
+        html += tomorrowJobs.map(job => renderJobCard(job, 'todo')).join('');
     } else {
-        html += '<div class="todo-empty">Nothing due tomorrow</div>';
+        html += '<div class="todo-empty">Nothing on tomorrow</div>';
+    }
+    
+    // Later this week section
+    const laterMeetings = data.later?.meetings || [];
+    if (laterMeetings.length > 0) {
+        html += '<div class="todo-title" style="margin-top: 24px;">Later this week</div>';
+        html += '<ul class="todo-later-list">';
+        html += laterMeetings.map(m => {
+            const time = formatMeetingTime(m.start);
+            const day = escapeHtml(m.dayLabel || m.day || '');
+            const title = escapeHtml(m.title || '');
+            return `<li><strong>${day}</strong> ${time} — ${title}</li>`;
+        }).join('');
+        html += '</ul>';
     }
     
     container.innerHTML = html;
+}
+
+function renderMeetingCard(meeting) {
+    const title = escapeHtml(meeting.title || '');
+    const location = escapeHtml(meeting.location || '');
+    const whose = escapeHtml(meeting.whose || '');
+    const startTime = formatMeetingTime(meeting.start);
+    const endTime = formatMeetingTime(meeting.end);
+    
+    return `
+        <div class="meeting-card">
+            <div class="meeting-card-header">
+                <div class="meeting-card-time">${startTime} – ${endTime}</div>
+                <div class="meeting-card-whose">${whose}</div>
+            </div>
+            <div class="meeting-card-title">${title}</div>
+            ${location ? `<div class="meeting-card-location">📍 ${location}</div>` : ''}
+        </div>
+    `;
+}
+
+function formatMeetingTime(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    // Input: "2/2/2026 11:00am" -> Output: "11:00am"
+    const match = dateTimeStr.match(/(\d{1,2}:\d{2}(?:am|pm))/i);
+    return match ? match[1] : '';
 }
 
 function renderTodoItem(job) {

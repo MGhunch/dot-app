@@ -947,6 +947,65 @@ body {
     font-weight: 500;
 }
 
+/* Meeting cards */
+.meeting-card {
+    background: var(--white);
+    padding: 16px 18px;
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.meeting-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.meeting-card-time {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--grey-600);
+}
+
+.meeting-card-whose {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--grey-400);
+}
+
+.meeting-card-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--grey-800);
+    margin-bottom: 4px;
+}
+
+.meeting-card-location {
+    font-size: 13px;
+    color: var(--grey-500);
+}
+
+.todo-later-list {
+    background: var(--white);
+    padding: 16px 18px 16px 36px;
+    border-radius: var(--radius-md);
+    margin: 0;
+    box-shadow: var(--shadow-sm);
+    font-size: 14px;
+    color: var(--grey-700);
+    line-height: 1.8;
+}
+
+.todo-later-list li {
+    margin-bottom: 4px;
+}
+
+.todo-later-list strong {
+    color: var(--grey-800);
+}
+
 /* ===== TRACKER SCREEN ===== */
 .tracker-card {
     background: var(--white);
