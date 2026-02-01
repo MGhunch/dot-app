@@ -110,23 +110,32 @@ def get_job(job_number):
 
 @app.route('/api/todo')
 def get_todo():
-    """Get jobs and meetings due today + tomorrow + later"""
+    """Get jobs and meetings for today + soon"""
     from airtable import get_todo_jobs, get_meetings
     jobs = get_todo_jobs()
     meetings = get_meetings()
+    
+    # Merge 'soon' by day, preserving weekday order
+    day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    soon_jobs = jobs.get('soon', {})
+    soon_meetings = meetings.get('soon', {})
+    all_days = set(list(soon_jobs.keys()) + list(soon_meetings.keys()))
+    
+    soon = []
+    for day in day_order:
+        if day in all_days:
+            soon.append({
+                'day': day,
+                'meetings': soon_meetings.get(day, []),
+                'jobs': soon_jobs.get(day, [])
+            })
     
     return jsonify({
         'today': {
             'meetings': meetings.get('today', []),
             'jobs': jobs.get('today', [])
         },
-        'tomorrow': {
-            'meetings': meetings.get('tomorrow', []),
-            'jobs': jobs.get('tomorrow', [])
-        },
-        'later': {
-            'meetings': meetings.get('later', [])
-        }
+        'soon': soon
     })
 
 # ==================== 

@@ -291,100 +291,150 @@ def get_job_record_id(job_number):
 # To Do
 # ==================== 
 
+def get_soon_range():
+    """Get date range for 'soon' section.
+    Mon-Thu: tomorrow through Friday.
+    Fri-Sun: next Monday through next Friday.
+    """
+    today = datetime.now().date()
+    weekday = today.weekday()  # Mon=0, Sun=6
+    
+    if weekday >= 4:  # Fri, Sat, Sun — show next week
+        days_to_next_monday = 7 - weekday
+        next_monday = today + timedelta(days=days_to_next_monday)
+        next_friday = next_monday + timedelta(days=4)
+        return today + timedelta(days=1), next_friday
+    else:  # Mon, Tue, Wed, Thu — rest of this week
+        tomorrow = today + timedelta(days=1)
+        friday = today + timedelta(days=4 - weekday)
+        return tomorrow, friday
+
+
+def parse_meeting_datetime(dt_str):
+    """Parse meeting datetime from Airtable.
+    Returns: (date, time_str) or (None, '')
+    """
+    if not dt_str:
+        return None, ''
+    
+    # ISO format from API: "2026-02-02T11:00:00.000Z"
+    iso_match = re.match(r'(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})', dt_str)
+    if iso_match:
+        y, mo, d = int(iso_match.group(1)), int(iso_match.group(2)), int(iso_match.group(3))
+        h, mi = int(iso_match.group(4)), int(iso_match.group(5))
+        period = 'am' if h < 12 else 'pm'
+        display_h = h % 12 or 12
+        return datetime(y, mo, d).date(), f"{display_h}:{mi:02d}{period}"
+    
+    # Text format: "2/2/2026 11:00am"
+    text_match = re.match(r'(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{1,2}:\d{2}(?:am|pm))', dt_str, re.IGNORECASE)
+    if text_match:
+        d, mo, y = int(text_match.group(1)), int(text_match.group(2)), int(text_match.group(3))
+        return datetime(y, mo, d).date(), text_match.group(4).lower()
+    
+    return None, ''
+
+
 def get_todo_jobs():
     """
-    Get jobs due today and tomorrow.
-    Returns: {'today': [...], 'tomorrow': [...]}
+    Get jobs for today and soon.
+    Returns: {'today': [...], 'soon': {'Wednesday': [...], ...}}
     """
     try:
-        # Get all active jobs first
         all_jobs = get_all_jobs(status_filter='active')
         
         today = datetime.now().date()
-        tomorrow = today + timedelta(days=1)
+        soon_start, soon_end = get_soon_range()
         
         today_jobs = []
-        tomorrow_jobs = []
+        soon_jobs = {}
         
         for job in all_jobs:
-            # Skip jobs that are with client
             if job.get('withClient'):
                 continue
-                
+            
             update_due = job.get('updateDue')
             if not update_due:
                 continue
             
             try:
                 due_date = datetime.strptime(update_due, '%Y-%m-%d').date()
-                
-                if due_date <= today:
-                    today_jobs.append(job)
-                elif due_date == tomorrow:
-                    tomorrow_jobs.append(job)
             except ValueError:
                 continue
+            
+            if due_date <= today:
+                today_jobs.append(job)
+            elif soon_start <= due_date <= soon_end:
+                day_name = due_date.strftime('%A')
+                if day_name not in soon_jobs:
+                    soon_jobs[day_name] = []
+                soon_jobs[day_name].append(job)
         
-        # Sort by due date
-        today_jobs.sort(key=lambda x: x.get('updateDue', '9999-12-31'))
-        tomorrow_jobs.sort(key=lambda x: x.get('updateDue', '9999-12-31'))
+        today_jobs.sort(key=lambda x: x.get('updateDue', ''))
+        for day_list in soon_jobs.values():
+            day_list.sort(key=lambda x: x.get('updateDue', ''))
         
-        return {
-            'today': today_jobs,
-            'tomorrow': tomorrow_jobs
-        }
+        return {'today': today_jobs, 'soon': soon_jobs}
     
     except Exception as e:
         print(f'[Airtable] Error fetching todo jobs: {e}')
-        return {'today': [], 'tomorrow': []}
+        return {'today': [], 'soon': {}}
 
 
 def get_meetings():
     """
-    Get meetings grouped by day.
-    Returns: {'today': [...], 'tomorrow': [...], 'later': [...]}
+    Get meetings for today and soon.
+    Returns: {'today': [...], 'soon': {'Wednesday': [...], ...}}
     """
     try:
         url = get_airtable_url('Meetings')
-        response = requests.get(url, headers=get_headers())
+        response = requests.get(url, headers=HEADERS)
         response.raise_for_status()
         
-        today = []
-        tomorrow = []
-        later = []
+        today_date = datetime.now().date()
+        soon_start, soon_end = get_soon_range()
+        
+        today_meetings = []
+        soon_meetings = {}
         
         for record in response.json().get('records', []):
             fields = record.get('fields', {})
             
+            start_str = fields.get('Start', '')
+            end_str = fields.get('End', '')
+            meeting_date, start_time = parse_meeting_datetime(start_str)
+            _, end_time = parse_meeting_datetime(end_str)
+            
+            if not meeting_date:
+                continue
+            
             meeting = {
                 'id': record.get('id'),
                 'title': fields.get('Title', ''),
-                'start': fields.get('Start', ''),
-                'end': fields.get('End', ''),
-                'day': fields.get('Day', ''),
+                'startTime': start_time,
+                'endTime': end_time,
+                'start': start_str,
                 'location': fields.get('Location', ''),
                 'whose': fields.get('Whose meeting', ''),
-                'attendees': fields.get("Who's going", '')
             }
             
-            day = meeting['day'].lower()
-            if day == 'today':
-                today.append(meeting)
-            elif day == 'tomorrow':
-                tomorrow.append(meeting)
-            elif day:  # Thursday, Friday, etc.
-                meeting['dayLabel'] = fields.get('Day', '')
-                later.append(meeting)
+            if meeting_date == today_date:
+                today_meetings.append(meeting)
+            elif soon_start <= meeting_date <= soon_end:
+                day_name = meeting_date.strftime('%A')
+                if day_name not in soon_meetings:
+                    soon_meetings[day_name] = []
+                soon_meetings[day_name].append(meeting)
         
-        # Sort by start time
-        for group in [today, tomorrow, later]:
-            group.sort(key=lambda x: x.get('start', ''))
+        today_meetings.sort(key=lambda x: x.get('start', ''))
+        for day_list in soon_meetings.values():
+            day_list.sort(key=lambda x: x.get('start', ''))
         
-        return {'today': today, 'tomorrow': tomorrow, 'later': later}
+        return {'today': today_meetings, 'soon': soon_meetings}
     
     except Exception as e:
         print(f'[Airtable] Error fetching meetings: {e}')
-        return {'today': [], 'tomorrow': [], 'later': []}
+        return {'today': [], 'soon': {}}
 
 
 # ==================== 
