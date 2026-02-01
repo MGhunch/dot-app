@@ -307,6 +307,10 @@ def get_todo_jobs():
         tomorrow_jobs = []
         
         for job in all_jobs:
+            # Skip jobs that are with client
+            if job.get('withClient'):
+                continue
+                
             update_due = job.get('updateDue')
             if not update_due:
                 continue
