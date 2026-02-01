@@ -110,10 +110,24 @@ def get_job(job_number):
 
 @app.route('/api/todo')
 def get_todo():
-    """Get jobs due today + tomorrow"""
-    from airtable import get_todo_jobs
+    """Get jobs and meetings due today + tomorrow + later"""
+    from airtable import get_todo_jobs, get_meetings
     jobs = get_todo_jobs()
-    return jsonify(jobs)
+    meetings = get_meetings()
+    
+    return jsonify({
+        'today': {
+            'meetings': meetings.get('today', []),
+            'jobs': jobs.get('today', [])
+        },
+        'tomorrow': {
+            'meetings': meetings.get('tomorrow', []),
+            'jobs': jobs.get('tomorrow', [])
+        },
+        'later': {
+            'meetings': meetings.get('later', [])
+        }
+    })
 
 # ==================== 
 # Tracker API

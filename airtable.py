@@ -335,6 +335,54 @@ def get_todo_jobs():
         return {'today': [], 'tomorrow': []}
 
 
+def get_meetings():
+    """
+    Get meetings grouped by day.
+    Returns: {'today': [...], 'tomorrow': [...], 'later': [...]}
+    """
+    try:
+        url = get_airtable_url('Meetings')
+        response = requests.get(url, headers=get_headers())
+        response.raise_for_status()
+        
+        today = []
+        tomorrow = []
+        later = []
+        
+        for record in response.json().get('records', []):
+            fields = record.get('fields', {})
+            
+            meeting = {
+                'id': record.get('id'),
+                'title': fields.get('Title', ''),
+                'start': fields.get('Start', ''),
+                'end': fields.get('End', ''),
+                'day': fields.get('Day', ''),
+                'location': fields.get('Location', ''),
+                'whose': fields.get('Whose meeting', ''),
+                'attendees': fields.get("Who's going", '')
+            }
+            
+            day = meeting['day'].lower()
+            if day == 'today':
+                today.append(meeting)
+            elif day == 'tomorrow':
+                tomorrow.append(meeting)
+            elif day:  # Thursday, Friday, etc.
+                meeting['dayLabel'] = fields.get('Day', '')
+                later.append(meeting)
+        
+        # Sort by start time
+        for group in [today, tomorrow, later]:
+            group.sort(key=lambda x: x.get('start', ''))
+        
+        return {'today': today, 'tomorrow': tomorrow, 'later': later}
+    
+    except Exception as e:
+        print(f'[Airtable] Error fetching meetings: {e}')
+        return {'today': [], 'tomorrow': [], 'later': []}
+
+
 # ==================== 
 # Updates
 # ==================== 
