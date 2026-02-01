@@ -879,6 +879,11 @@ body {
     margin-bottom: 28px;
 }
 
+.todo-list {
+    display: flex;
+    flex-direction: column;
+}
+
 .todo-title {
     font-size: 11px;
     font-weight: 600;
@@ -952,7 +957,7 @@ body {
     background: var(--white);
     padding: 16px 18px;
     border-radius: var(--radius-md);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     box-shadow: var(--shadow-sm);
 }
 
@@ -987,23 +992,13 @@ body {
     color: var(--grey-500);
 }
 
-.todo-later-list {
-    background: var(--white);
-    padding: 16px 18px 16px 36px;
-    border-radius: var(--radius-md);
-    margin: 0;
-    box-shadow: var(--shadow-sm);
+.todo-day-label {
     font-size: 14px;
+    font-weight: 600;
     color: var(--grey-700);
-    line-height: 1.8;
-}
-
-.todo-later-list li {
-    margin-bottom: 4px;
-}
-
-.todo-later-list strong {
-    color: var(--grey-800);
+    padding-left: 4px;
+    margin-top: 12px;
+    margin-bottom: 8px;
 }
 
 /* ===== TRACKER SCREEN ===== */

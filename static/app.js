@@ -121,7 +121,7 @@ async function loadTodoJobs() {
     } catch (e) {
         console.error('[App] Failed to load todo jobs:', e);
     }
-    return { today: [], tomorrow: [] };
+    return { today: { meetings: [], jobs: [] }, soon: [] };
 }
 
 // ==================== 
@@ -550,30 +550,17 @@ async function loadAndRenderTodo() {
         html += '<div class="todo-empty">Nothing on today</div>';
     }
     
-    // Tomorrow section
-    html += '<div class="todo-title" style="margin-top: 24px;">Tomorrow</div>';
-    const tomorrowMeetings = data.tomorrow?.meetings || [];
-    const tomorrowJobs = data.tomorrow?.jobs || [];
-    
-    if (tomorrowMeetings.length > 0 || tomorrowJobs.length > 0) {
-        html += tomorrowMeetings.map(m => renderMeetingCard(m)).join('');
-        html += tomorrowJobs.map(job => renderJobCard(job, 'todo')).join('');
-    } else {
-        html += '<div class="todo-empty">Nothing on tomorrow</div>';
-    }
-    
-    // Later this week section
-    const laterMeetings = data.later?.meetings || [];
-    if (laterMeetings.length > 0) {
-        html += '<div class="todo-title" style="margin-top: 24px;">Later this week</div>';
-        html += '<ul class="todo-later-list">';
-        html += laterMeetings.map(m => {
-            const time = formatMeetingTime(m.start);
-            const day = escapeHtml(m.dayLabel || m.day || '');
-            const title = escapeHtml(m.title || '');
-            return `<li><strong>${day}</strong> ${time} — ${title}</li>`;
-        }).join('');
-        html += '</ul>';
+    // Soon section
+    const soon = data.soon || [];
+    if (soon.length > 0) {
+        html += '<div class="todo-title" style="margin-top: 24px;">Soon</div>';
+        soon.forEach(dayGroup => {
+            const dayMeetings = dayGroup.meetings || [];
+            const dayJobs = dayGroup.jobs || [];
+            html += `<div class="todo-day-label">${escapeHtml(dayGroup.day)}</div>`;
+            html += dayMeetings.map(m => renderMeetingCard(m)).join('');
+            html += dayJobs.map(job => renderJobCard(job, 'todo')).join('');
+        });
     }
     
     container.innerHTML = html;
@@ -583,8 +570,8 @@ function renderMeetingCard(meeting) {
     const title = escapeHtml(meeting.title || '');
     const location = escapeHtml(meeting.location || '');
     const whose = escapeHtml(meeting.whose || '');
-    const startTime = formatMeetingTime(meeting.start);
-    const endTime = formatMeetingTime(meeting.end);
+    const startTime = meeting.startTime || '';
+    const endTime = meeting.endTime || '';
     
     return `
         <div class="meeting-card">
@@ -596,13 +583,6 @@ function renderMeetingCard(meeting) {
             ${location ? `<div class="meeting-card-location">📍 ${location}</div>` : ''}
         </div>
     `;
-}
-
-function formatMeetingTime(dateTimeStr) {
-    if (!dateTimeStr) return '';
-    // Input: "2/2/2026 11:00am" -> Output: "11:00am"
-    const match = dateTimeStr.match(/(\d{1,2}:\d{2}(?:am|pm))/i);
-    return match ? match[1] : '';
 }
 
 function renderTodoItem(job) {
