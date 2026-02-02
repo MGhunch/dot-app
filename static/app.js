@@ -121,7 +121,7 @@ async function loadTodoJobs() {
     } catch (e) {
         console.error('[App] Failed to load todo jobs:', e);
     }
-    return { today: { meetings: [], jobs: [] }, soon: [] };
+    return { today: { meetings: [], jobs: [] }, next: { label: 'Tomorrow', meetings: [], jobs: [] } };
 }
 
 // ==================== 
@@ -544,23 +544,36 @@ async function loadAndRenderTodo() {
     const todayJobs = data.today?.jobs || [];
     
     if (todayMeetings.length > 0 || todayJobs.length > 0) {
-        html += todayMeetings.map(m => renderMeetingCard(m)).join('');
-        html += todayJobs.map(job => renderJobCard(job, 'todo')).join('');
+        if (todayMeetings.length > 0) {
+            html += '<div class="todo-subtitle">Meetings</div>';
+            html += todayMeetings.map(m => renderMeetingCard(m)).join('');
+        }
+        if (todayJobs.length > 0) {
+            html += '<div class="todo-subtitle">Jobs due</div>';
+            html += todayJobs.map(job => renderJobCard(job, 'todo')).join('');
+        }
     } else {
         html += '<div class="todo-empty">Nothing on today</div>';
     }
     
-    // Soon section
-    const soon = data.soon || [];
-    if (soon.length > 0) {
-        html += '<div class="todo-title" style="margin-top: 24px;">Soon</div>';
-        soon.forEach(dayGroup => {
-            const dayMeetings = dayGroup.meetings || [];
-            const dayJobs = dayGroup.jobs || [];
-            html += `<div class="todo-day-label">${escapeHtml(dayGroup.day)}</div>`;
-            html += dayMeetings.map(m => renderMeetingCard(m)).join('');
-            html += dayJobs.map(job => renderJobCard(job, 'todo')).join('');
-        });
+    // Next workday section
+    const nextLabel = data.next?.label || 'Tomorrow';
+    const nextMeetings = data.next?.meetings || [];
+    const nextJobs = data.next?.jobs || [];
+    
+    html += `<div class="todo-title" style="margin-top: 24px;">${escapeHtml(nextLabel)}</div>`;
+    
+    if (nextMeetings.length > 0 || nextJobs.length > 0) {
+        if (nextMeetings.length > 0) {
+            html += '<div class="todo-subtitle">Meetings</div>';
+            html += nextMeetings.map(m => renderMeetingCard(m)).join('');
+        }
+        if (nextJobs.length > 0) {
+            html += '<div class="todo-subtitle">Jobs due</div>';
+            html += nextJobs.map(job => renderJobCard(job, 'todo')).join('');
+        }
+    } else {
+        html += `<div class="todo-empty">Nothing on ${escapeHtml(nextLabel.toLowerCase())}</div>`;
     }
     
     container.innerHTML = html;

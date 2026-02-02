@@ -882,6 +882,11 @@ body {
 .todo-list {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+}
+
+.todo-list .job-item {
+    margin: 0;
 }
 
 .todo-title {
@@ -1020,10 +1025,10 @@ body {
     display: block;
 }
 
-.todo-day-label {
-    font-size: 14px;
+.todo-subtitle {
+    font-size: 13px;
     font-weight: 600;
-    color: var(--grey-700);
+    color: var(--grey-500);
     padding-left: 4px;
     margin-top: 12px;
     margin-bottom: 8px;
