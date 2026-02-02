@@ -572,15 +572,17 @@ function renderMeetingCard(meeting) {
     const whose = escapeHtml(meeting.whose || '');
     const startTime = meeting.startTime || '';
     const endTime = meeting.endTime || '';
+    const attendees = escapeHtml(meeting.attendees || '');
     
     return `
-        <div class="meeting-card">
+        <div class="meeting-card" onclick="this.classList.toggle('expanded')">
             <div class="meeting-card-header">
                 <div class="meeting-card-time">${startTime} – ${endTime}</div>
                 <div class="meeting-card-whose">${whose}</div>
             </div>
             <div class="meeting-card-title">${title}</div>
             ${location ? `<div class="meeting-card-location">📍 ${location}</div>` : ''}
+            ${attendees ? `<div class="meeting-card-attendees"><div class="meeting-card-attendees-label">Who's going</div>${attendees}</div>` : ''}
         </div>
     `;
 }
