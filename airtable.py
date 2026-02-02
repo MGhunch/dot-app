@@ -291,12 +291,18 @@ def get_job_record_id(job_number):
 # To Do
 # ==================== 
 
+def get_nz_today():
+    """Get today's date in NZ timezone."""
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo('Pacific/Auckland')).date()
+
+
 def get_soon_range():
     """Get date range for 'soon' section.
     Mon-Thu: tomorrow through Friday.
     Fri-Sun: next Monday through next Friday.
     """
-    today = datetime.now().date()
+    today = get_nz_today()
     weekday = today.weekday()  # Mon=0, Sun=6
     
     if weekday >= 4:  # Fri, Sat, Sun — show next week
@@ -311,22 +317,27 @@ def get_soon_range():
 
 
 def parse_meeting_datetime(dt_str):
-    """Parse meeting datetime from Airtable.
+    """Parse meeting datetime from Airtable API (UTC) and convert to NZ time.
     Returns: (date, time_str) or (None, '')
     """
     if not dt_str:
         return None, ''
     
-    # ISO format from API: "2026-02-02T11:00:00.000Z"
+    from zoneinfo import ZoneInfo
+    nz_tz = ZoneInfo('Pacific/Auckland')
+    
+    # ISO format from API: "2026-02-02T00:00:00.000Z"
     iso_match = re.match(r'(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})', dt_str)
     if iso_match:
         y, mo, d = int(iso_match.group(1)), int(iso_match.group(2)), int(iso_match.group(3))
         h, mi = int(iso_match.group(4)), int(iso_match.group(5))
-        period = 'am' if h < 12 else 'pm'
-        display_h = h % 12 or 12
-        return datetime(y, mo, d).date(), f"{display_h}:{mi:02d}{period}"
+        utc_dt = datetime(y, mo, d, h, mi, tzinfo=ZoneInfo('UTC'))
+        nz_dt = utc_dt.astimezone(nz_tz)
+        period = 'am' if nz_dt.hour < 12 else 'pm'
+        display_h = nz_dt.hour % 12 or 12
+        return nz_dt.date(), f"{display_h}:{nz_dt.minute:02d}{period}"
     
-    # Text format: "2/2/2026 11:00am"
+    # Text format fallback: "2/2/2026 11:00am"
     text_match = re.match(r'(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{1,2}:\d{2}(?:am|pm))', dt_str, re.IGNORECASE)
     if text_match:
         d, mo, y = int(text_match.group(1)), int(text_match.group(2)), int(text_match.group(3))
@@ -343,7 +354,7 @@ def get_todo_jobs():
     try:
         all_jobs = get_all_jobs(status_filter='active')
         
-        today = datetime.now().date()
+        today = get_nz_today()
         soon_start, soon_end = get_soon_range()
         
         today_jobs = []
@@ -391,7 +402,7 @@ def get_meetings():
         response = requests.get(url, headers=HEADERS)
         response.raise_for_status()
         
-        today_date = datetime.now().date()
+        today_date = get_nz_today()
         soon_start, soon_end = get_soon_range()
         
         today_meetings = []
