@@ -297,23 +297,21 @@ def get_nz_today():
     return datetime.now(ZoneInfo('Pacific/Auckland')).date()
 
 
-def get_soon_range():
-    """Get date range for 'soon' section.
-    Mon-Thu: tomorrow through Friday.
-    Fri-Sun: next Monday through next Friday.
+def get_next_workday():
+    """Get next working day. Mon-Thu: tomorrow. Fri-Sun: Monday.
+    Returns: (date, label)
     """
     today = get_nz_today()
     weekday = today.weekday()  # Mon=0, Sun=6
     
-    if weekday >= 4:  # Fri, Sat, Sun — show next week
-        days_to_next_monday = 7 - weekday
-        next_monday = today + timedelta(days=days_to_next_monday)
-        next_friday = next_monday + timedelta(days=4)
-        return today + timedelta(days=1), next_friday
-    else:  # Mon, Tue, Wed, Thu — rest of this week
-        tomorrow = today + timedelta(days=1)
-        friday = today + timedelta(days=4 - weekday)
-        return tomorrow, friday
+    if weekday == 4:  # Friday
+        return today + timedelta(days=3), 'Monday'
+    elif weekday == 5:  # Saturday
+        return today + timedelta(days=2), 'Monday'
+    elif weekday == 6:  # Sunday
+        return today + timedelta(days=1), 'Monday'
+    else:
+        return today + timedelta(days=1), 'Tomorrow'
 
 
 def parse_meeting_datetime(dt_str):
@@ -348,17 +346,17 @@ def parse_meeting_datetime(dt_str):
 
 def get_todo_jobs():
     """
-    Get jobs for today and soon.
-    Returns: {'today': [...], 'soon': {'Wednesday': [...], ...}}
+    Get jobs for today and next workday.
+    Returns: {'today': [...], 'next': [...]}
     """
     try:
         all_jobs = get_all_jobs(status_filter='active')
         
         today = get_nz_today()
-        soon_start, soon_end = get_soon_range()
+        next_day, _ = get_next_workday()
         
         today_jobs = []
-        soon_jobs = {}
+        next_jobs = []
         
         for job in all_jobs:
             if job.get('withClient'):
@@ -375,27 +373,23 @@ def get_todo_jobs():
             
             if due_date <= today:
                 today_jobs.append(job)
-            elif soon_start <= due_date <= soon_end:
-                day_name = due_date.strftime('%A')
-                if day_name not in soon_jobs:
-                    soon_jobs[day_name] = []
-                soon_jobs[day_name].append(job)
+            elif due_date == next_day:
+                next_jobs.append(job)
         
         today_jobs.sort(key=lambda x: x.get('updateDue', ''))
-        for day_list in soon_jobs.values():
-            day_list.sort(key=lambda x: x.get('updateDue', ''))
+        next_jobs.sort(key=lambda x: x.get('updateDue', ''))
         
-        return {'today': today_jobs, 'soon': soon_jobs}
+        return {'today': today_jobs, 'next': next_jobs}
     
     except Exception as e:
         print(f'[Airtable] Error fetching todo jobs: {e}')
-        return {'today': [], 'soon': {}}
+        return {'today': [], 'next': []}
 
 
 def get_meetings():
     """
-    Get meetings for today and soon.
-    Returns: {'today': [...], 'soon': {'Wednesday': [...], ...}}
+    Get meetings for today and next workday.
+    Returns: {'today': [...], 'next': [...]}
     """
     try:
         url = get_airtable_url('Meetings')
@@ -403,10 +397,10 @@ def get_meetings():
         response.raise_for_status()
         
         today_date = get_nz_today()
-        soon_start, soon_end = get_soon_range()
+        next_day, _ = get_next_workday()
         
         today_meetings = []
-        soon_meetings = {}
+        next_meetings = []
         
         for record in response.json().get('records', []):
             fields = record.get('fields', {})
@@ -432,21 +426,17 @@ def get_meetings():
             
             if meeting_date == today_date:
                 today_meetings.append(meeting)
-            elif soon_start <= meeting_date <= soon_end:
-                day_name = meeting_date.strftime('%A')
-                if day_name not in soon_meetings:
-                    soon_meetings[day_name] = []
-                soon_meetings[day_name].append(meeting)
+            elif meeting_date == next_day:
+                next_meetings.append(meeting)
         
         today_meetings.sort(key=lambda x: x.get('start', ''))
-        for day_list in soon_meetings.values():
-            day_list.sort(key=lambda x: x.get('start', ''))
+        next_meetings.sort(key=lambda x: x.get('start', ''))
         
-        return {'today': today_meetings, 'soon': soon_meetings}
+        return {'today': today_meetings, 'next': next_meetings}
     
     except Exception as e:
         print(f'[Airtable] Error fetching meetings: {e}')
-        return {'today': [], 'soon': {}}
+        return {'today': [], 'next': []}
 
 
 # ==================== 
