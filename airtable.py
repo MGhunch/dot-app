@@ -427,6 +427,7 @@ def get_meetings():
                 'start': start_str,
                 'location': fields.get('Location', ''),
                 'whose': fields.get('Whose meeting', ''),
+                'attendees': fields.get("Who's going", ''),
             }
             
             if meeting_date == today_date:
